@@ -28,7 +28,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
-  return res.json(jsend.success());
+  return res.json(jsend.success({
+    message: "API is running",
+  }));
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

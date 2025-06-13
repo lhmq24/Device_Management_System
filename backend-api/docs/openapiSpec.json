@@ -3,19 +3,7 @@
   "info": {
     "title": "Device Maintenance API",
     "version": "1.0.0",
-    "description": "A simple device maintenance app API",
-    "contact": {
-        "x-contacts": [
-        {
-            "name": "Le Hoang Minh Quan",
-            "email": "quanb2206008@student.ctu.edu.vn"
-        },
-        {
-            "name": "Pham Phu Thanh",
-            "email": "thanhb2206015@student.ctu.edu.vn"
-        }
-        ]
-    }
+    "description": "A simple device maintenance app API"
   },
   "servers": [
     {
@@ -37,8 +25,17 @@
                     "type": "object",
                     "properties": {
                         "status": {
-                        "type": "string",
-                        "example": "API is running"
+                            "type": "string",
+                            "example": "success"
+                        },
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "API is running"
+                                }
+                            }
                         }
                     }
                     }
