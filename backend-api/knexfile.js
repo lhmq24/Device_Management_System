@@ -12,6 +12,7 @@ module.exports = {
     password: DB_PASS,
     database: DB_NAME,
   },
+  searchPath: ["project"],
   pool: { min: 0, max: 10 },
   seeds: {
     directory: "./seeds",
