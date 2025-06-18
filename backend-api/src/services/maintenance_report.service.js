@@ -1,0 +1,98 @@
+const knex = require("../database/knex");
+const Paginator = require("./Paginator");
+
+/**
+ * @import {
+ * maintenanceReportSchema,
+ * partialMaintenanceReportSchema,
+ * } from '../schemas/maintenanceReport.schema';
+ * @typedef {z.infer<typeof maintenanceReportSchema>} MaintenanceReport
+ * @typedef {z.infer<typeof partialMaintenanceReportSchema>} PartialMaintenanceReport
+ */
+
+function reportRepository() {
+  return knex("maintenance_report");
+}
+
+function readReportData(payload) {
+  return {
+    ...(payload.device_id && { device_id: payload.device_id }),
+    ...(payload.m_id && { m_id: payload.m_id }),
+    ...(payload.mr_date && { mr_date: payload.mr_date }),
+    ...(payload.mr_note && { mr_note: payload.mr_note }),
+  };
+}
+
+async function createReport(payload) {
+  const data = readReportData(payload);
+  await reportRepository().insert(data);
+  return data;
+}
+
+async function getManyReports(query) {
+  const {
+    page = 1,
+    limit = 10,
+    device_id,
+    m_id,
+    date_from,
+    date_to,
+    sort_by = "mr_date",
+    order = "desc",
+  } = query;
+
+  const paginator = new Paginator(page, limit);
+
+  const results = await reportRepository()
+    .where((builder) => {
+      if (device_id) builder.where("device_id", device_id);
+      if (m_id) builder.where("m_id", m_id);
+      if (date_from) builder.where("mr_date", ">=", date_from);
+      if (date_to) builder.where("mr_date", "<=", date_to);
+    })
+    .select(knex.raw("COUNT(*) OVER() AS record_count"), "*")
+    .orderBy(sort_by, order)
+    .limit(paginator.limit)
+    .offset(paginator.offset);
+
+  const totalRecords = results[0]?.record_count ?? 0;
+  const reports = results.map((r) => ({ ...r, record_count: undefined }));
+
+  return {
+    metadata: paginator.getMetadata(totalRecords),
+    reports,
+  };
+}
+
+async function getReportByPK(device_id, m_id, mr_date) {
+  return reportRepository().where({ device_id, m_id, mr_date }).first();
+}
+
+async function updateReport(device_id, m_id, mr_date, updatePayload) {
+  const existing = await getReportByPK(device_id, m_id, mr_date);
+  if (!existing) return null;
+
+  const data = readReportData(updatePayload);
+  if (Object.keys(data).length > 0) {
+    await reportRepository().where({ device_id, m_id, mr_date }).update(data);
+    return { ...existing, ...data };
+  }
+
+  return existing;
+}
+
+async function deleteReport(device_id, m_id, mr_date) {
+  const report = await getReportByPK(device_id, m_id, mr_date);
+  if (!report) return null;
+
+  await reportRepository().where({ device_id, m_id, mr_date }).del();
+  return report;
+}
+
+module.exports = {
+  createReport,
+  getManyReports,
+  getReportByPK,
+  updateReport,
+  deleteReport,
+};

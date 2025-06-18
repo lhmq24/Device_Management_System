@@ -3,9 +3,9 @@ const { z } = require("zod");
 const deviceSchema = z.object({
   device_id: z.coerce.number().int().nonnegative(),
   unit_id: z.coerce.number().int().nonnegative().optional(),
-  name: z.string().max(255),
-  buy_date: z.coerce.date().optional(),
-  maintenance_interval_date: z.number().int().nonnegative(),
+  device_name: z.string().max(255),
+  device_buy_date: z.coerce.date().optional(),
+  device_maintenance_interval: z.number().int().nonnegative(),
   device_img: z.string().max(255).optional(),
   //imgFile is optional and can be undefined or null, not included in database entity
   imgFile: z
