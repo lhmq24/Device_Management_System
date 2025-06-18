@@ -74,10 +74,26 @@ async function deleteUnit(req, res, next) {
   }
 }
 
+// GET /api/units/:id/devices
+async function getDevicesByUnitId(req, res, next) {
+  try {
+    const devices = await unitService.getDevicesByUnitId(req.params.unitId);
+    if (devices.length === 0) {
+      return res.status(404).json(JSend.fail("No devices found for this unit"));
+    }
+    return res
+    .status(200)
+    .json(JSend.success({ devices }));
+  } catch (err) {
+    return next(new ApiError(500, err.message));
+  }
+}
+
 module.exports = {
   createUnit,
   getUnits,
   getUnit,
   updateUnit,
   deleteUnit,
+  getDevicesByUnitId,
 };

@@ -12,5 +12,14 @@ module.exports = require("knex")({
     password: DB_PASS,
     database: DB_NAME,
   },
-  pool: { min: 0, max: 10 },
+  searchPath: ["project"],
+  pool: {
+    min: 0,
+    max: 10,
+    afterCreate: (conn, done) => {
+      conn.query("SET search_path TO 'project'", (err) => {
+        done(err, conn);
+      });
+    },
+  },
 });

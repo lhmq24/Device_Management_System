@@ -7,7 +7,7 @@ const { validateRequest } = require("../middlewares/validator.middlewares");
 const { deviceImgUpload } = require("../middlewares/img-upload.middlewares");
 const {
   deviceSchema,
-  partialDeviceSchema,
+  partialdeviceSchema,
 } = require("../schemas/device.schema");
 
 const router = express.Router();
@@ -25,7 +25,7 @@ module.exports.setup = (app) => {
         })
         .strict()
     ),
-    devicesController.getManyDevices
+    devicesController.getDevicesByFilter
   );
 
   // POST /api/devices
@@ -74,7 +74,7 @@ module.exports.setup = (app) => {
         })
         .strict()
     ),
-    devicesController.getDeviceById
+    devicesController.getDevice
   );
 
     // PUT /api/devices/:id
@@ -85,7 +85,7 @@ module.exports.setup = (app) => {
         validateRequest(
             z
                 .object({
-                device: partialDeviceSchema
+                device: partialdeviceSchema
                     .omit({
                     device_id: true,
                     })
@@ -126,5 +126,17 @@ module.exports.setup = (app) => {
         devicesController.deleteDevice
     );
 
-  router.all("/:id", methodNotAllowed);
+    // Method Not Allowed
+    router.all("/devices", (req, res, next) => {
+      if (!["GET", "POST"].includes(req.method))
+        return methodNotAllowed(req, res);
+      next();
+    });
+
+    router.all("/devices/:id", (req, res, next) => {
+      if (!["GET", "PUT", "DELETE"].includes(req.method))
+        return methodNotAllowed(req, res);
+      next();
+    });
+    
 }

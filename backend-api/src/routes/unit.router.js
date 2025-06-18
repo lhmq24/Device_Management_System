@@ -21,7 +21,7 @@ module.exports.setup = (app) => {
         })
         .strict()
     ),
-    unitsController.getManyUnits
+    unitsController.getUnits
   );
 
   // POST /api/units
@@ -47,19 +47,19 @@ module.exports.setup = (app) => {
         unitId: z.coerce.number().int().positive(),
       })
     ),
-    unitsController.getUnitById
+    unitsController.getUnit
   );
 
   // GET /api/units/:id/devices
-    router.get(
-        "/units/:unitId/devices",
-        validateRequest(
-        z.object({
-            unitId: z.coerce.number().int().positive(),
-        })
-        ),
-        unitsController.getDevicesByUnitId
-    );
+  router.get(
+    "/units/:unitId/devices",
+    validateRequest(
+      z.object({
+        unitId: z.coerce.number().int().positive(),
+      })
+    ),
+    unitsController.getDevicesByUnitId
+  );
 
   // PUT /api/units/:unitId
   router.put(
@@ -84,6 +84,25 @@ module.exports.setup = (app) => {
     unitsController.deleteUnit
   );
 
-  // Method Not Allowed
-  router.all("/units", methodNotAllowed);
+  // Method Not Allowed - fallback for invalid methods per path
+  router.all("/units", (req, res, next) => {
+    if (req.method !== "GET" && req.method !== "POST") {
+      return methodNotAllowed(req, res);
+    }
+    next();
+  });
+
+  router.all("/units/:unitId", (req, res, next) => {
+    if (!["GET", "PUT", "DELETE"].includes(req.method)) {
+      return methodNotAllowed(req, res);
+    }
+    next();
+  });
+
+  router.all("/units/:unitId/devices", (req, res, next) => {
+    if (req.method !== "GET") {
+      return methodNotAllowed(req, res);
+    }
+    next();
+  });
 }

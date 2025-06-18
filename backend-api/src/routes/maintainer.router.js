@@ -14,17 +14,17 @@ module.exports.setup = (app) => {
     app.use("/api", router);
     // GET /api/maintainers
     router.get(
-        "/maintainers",
-        validateRequest(
+      "/maintainers",
+      validateRequest(
         z
-            .object({
+          .object({
             search: z.string().max(255).optional(),
             page: z.coerce.number().nonnegative().default(1),
             limit: z.coerce.number().nonnegative().default(5),
-            })
-            .strict()
-        ),
-        maintainersController.getManyMaintainers
+          })
+          .strict()
+      ),
+      maintainersController.getMaintainers
     );
     
     // POST /api/maintainers
@@ -44,13 +44,13 @@ module.exports.setup = (app) => {
     
     // GET /api/maintainers/:id
     router.get(
-        "/maintainers/:id",
-        validateRequest(
+      "/maintainers/:id",
+      validateRequest(
         z.object({
-            id: z.coerce.number().int().positive(),
+          id: z.coerce.number().int().positive(),
         })
-        ),
-        maintainersController.getMaintainerById
+      ),
+      maintainersController.getMaintainer
     );
     
     // PUT /api/maintainers/:id
@@ -62,7 +62,7 @@ module.exports.setup = (app) => {
             maintainer: partialMaintainerSchema.strict(),
         })
         ),
-        maintainersController.updateMaintainerById
+        maintainersController.updateMaintainer
     );
     
     // DELETE /api/maintainers/:id
@@ -73,9 +73,19 @@ module.exports.setup = (app) => {
             id: z.coerce.number().int().positive(),
         })
         ),
-        maintainersController.deleteMaintainerById
+        maintainersController.deleteMaintainer
     );
     
     // Method Not Allowed for all other methods
-    router.all("/maintainers", methodNotAllowed);
+    router.all("/maintainers", (req, res, next) => {
+      if (!["GET", "POST"].includes(req.method))
+        return methodNotAllowed(req, res);
+      next();
+    });
+
+    router.all("/maintainers/:id", (req, res, next) => {
+      if (!["GET", "PUT", "DELETE"].includes(req.method))
+        return methodNotAllowed(req, res);
+      next();
+    });
     }

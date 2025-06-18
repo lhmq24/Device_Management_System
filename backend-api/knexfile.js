@@ -13,7 +13,15 @@ module.exports = {
     database: DB_NAME,
   },
   searchPath: ["project"],
-  pool: { min: 0, max: 10 },
+  pool: {
+    min: 0,
+    max: 10,
+    afterCreate: (conn, done) => {
+      conn.query("SET search_path TO 'project'", (err) => {
+        done(err, conn);
+      });
+    },
+  },
   seeds: {
     directory: "./seeds",
   },

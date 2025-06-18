@@ -28,6 +28,19 @@ async function createDevice(req, res, next) {
 
 // GET /api/devices
 async function getDevicesByFilter(req, res, next) {
+  // if req query has device_name, use it to filter devices
+  if (req.query.device_name) {  
+    try {
+      const devices = await devicesService.getDevicesByName(req.query.device_name);
+      if (devices.length === 0) {
+        return res.status(404).json(JSend.fail("No devices found"));
+      }
+      return res.status(200).json(JSend.success({ devices }));
+    } catch (error) {
+      console.log(error);
+      return next(new ApiError(500, "Internal Server Error"));
+    }
+  }
   try {
     const result = await devicesService.getManyDevices(req.query);
     if(result.devices.length === 0) {
@@ -52,7 +65,6 @@ async function getDevice(req, res, next) {
   try {
     const { id } = req.params;
     const device = await devicesService.getDeviceById(id);
-
     if (!device) {
       return next(new ApiError(404, "Device not found"));
     }

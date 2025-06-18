@@ -19,7 +19,7 @@ function deviceRepository() {
  * @param {PartialDevice} payload
  * @returns {PartialDevice}
  */
-function readDevicetData(payload) {
+function readDeviceData(payload) {
   return {
     ...(payload.device_id && { device_id: payload.device_id }),
     ...(payload.unit_id && { unit_id: payload.unit_id }),
@@ -38,36 +38,37 @@ function readDevicetData(payload) {
  * @returns {Promise<Device>}
  */
 async function createDevice(payload) {
-  const deviceData = readDevicetData(payload);
+  const deviceData = readDeviceData(payload);
   const insertedRow = await deviceRepository().insert(deviceData).returning("device_id");
   return { device_id: insertedRow.device_id, ...deviceData }; 
 }
 
 async function getManyDevices(query) {
-  const {page = 1, limit = 5} = query;
-  // handle page or limit is not valid
+  const { page = 1, limit = 5 } = query;
+
   if (page < 1 || limit < 1) {
     throw new Error("Invalid page or limit value. Both must be greater than 0.");
   }
-  // handle page or limit is not a number
+
   if (isNaN(page) || isNaN(limit)) {
     throw new Error("Page and limit must be valid numbers.");
   }
-  // handle page or limit is not an integer
+
   if (!Number.isInteger(page) || !Number.isInteger(limit)) {
     throw new Error("Page and limit must be integers.");
   }
+
   const paginator = new Paginator(page, limit);
 
   const results = await deviceRepository()
     .select(
-      knex.raw("COUNT(id) OVER() AS record_count"),
-        "device_id",
-        "unit_id",
-        "device_name",
-        "device_buy_date",
-        "device_maintenance_interval",
-        "device_img",
+      knex.raw("COUNT(device_id) OVER() AS record_count"),
+      "device_id",
+      "unit_id",
+      "device_name",
+      "device_buy_date",
+      "device_maintenance_interval",
+      "device_img"
     )
     .orderBy("device_id", "asc")
     .limit(paginator.limit)
@@ -85,6 +86,7 @@ async function getManyDevices(query) {
     devices,
   };
 }
+
 
 async function getDeviceById(id) {
   return deviceRepository().where("device_id", id).select("*").first();
@@ -108,7 +110,7 @@ async function updateDevice(id, updateData) {
     return null;
   }
 
-  const deviceData = readDevicetData(updateData);
+  const deviceData = readDeviceData(updateData);
 
   if (Object.keys(deviceData).length > 0) {
     await deviceRepository().where("device_id", id).update(deviceData);
