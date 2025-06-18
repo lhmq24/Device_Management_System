@@ -18,7 +18,7 @@ async function createReport(req, res, next) {
 // GET /api/maintenance-reports
 async function getReports(req, res, next) {
   try {
-    const result = await reportService.getManyReports(req.query);
+    const result = await reportService.getManyReports(req.validatedData);
     if (result.reports.length === 0) {
       return res.status(404).json(JSend.fail("No maintenance reports found"));   
     }           
@@ -38,7 +38,7 @@ async function getReports(req, res, next) {
 // GET /api/maintenance-reports/:id
 async function getReport(req, res, next) {
   try {
-    const report = await reportService.getReportById(req.params.id);
+    const report = await reportService.getReportById(req.validatedData.id);
     if (!report) return next(new ApiError(404, "Maintenance report not found"));
     return res
       .status(200)
@@ -51,7 +51,7 @@ async function getReport(req, res, next) {
 // PUT /api/maintenance-reports/:id
 async function updateReport(req, res, next) {
   try {
-    const updated = await reportService.updateReport(req.params.id, req.body);
+    const updated = await reportService.updateReport(req.validatedData.id, req.validatedData.maintenanceReport);
     if (!updated)
       return next(new ApiError(404, "Maintenance report not found"));
     return res
@@ -65,7 +65,7 @@ async function updateReport(req, res, next) {
 // DELETE /api/maintenance-reports/:id
 async function deleteReport(req, res, next) {
   try {
-    const deleted = await reportService.deleteReport(req.params.id);
+    const deleted = await reportService.deleteReport(req.validatedData.id);
     if (!deleted)
       return next(new ApiError(404, "Maintenance report not found"));
     return res

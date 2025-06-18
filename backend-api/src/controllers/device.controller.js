@@ -29,7 +29,7 @@ async function createDevice(req, res, next) {
 // GET /api/devices
 async function getDevicesByFilter(req, res, next) {
   // if req query has device_name, use it to filter devices
-  if (req.query.device_name) {  
+  if (req.validatedData.device_name) {  
     try {
       const devices = await devicesService.getDevicesByName(req.query.device_name);
       if (devices.length === 0) {
@@ -63,7 +63,7 @@ async function getDevicesByFilter(req, res, next) {
 // GET /api/devices/:id
 async function getDevice(req, res, next) {
   try {
-    const { id } = req.params;
+    const { id } = req.validatedData;
     const device = await devicesService.getDeviceById(id);
     if (!device) {
       return next(new ApiError(404, "Device not found"));

@@ -38,7 +38,7 @@ async function getUnits(req, res, next) {
 // GET /api/units/:id
 async function getUnit(req, res, next) {
   try {
-    const unit = await unitService.getUnitById(req.params.id);
+    const unit = await unitService.getUnitById(req.validatedData.unitId);
     if (!unit) return next(new ApiError(404, "Unit not found"));
     return res
     .status(200)
@@ -51,7 +51,7 @@ async function getUnit(req, res, next) {
 // PUT /api/units/:id
 async function updateUnit(req, res, next) {
   try {
-    const updated = await unitService.updateUnit(req.params.id, req.body);
+    const updated = await unitService.updateUnit(req.validatedData.unitId, req.validatedData.unit);
     if (!updated) return next(new ApiError(404, "Unit not found"));
     return res
     .status(200)
@@ -64,7 +64,7 @@ async function updateUnit(req, res, next) {
 // DELETE /api/units/:id
 async function deleteUnit(req, res, next) {
   try {
-    const deleted = await unitService.deleteUnit(req.params.id);
+    const deleted = await unitService.deleteUnit(req.validatedData.unitId);
     if (!deleted) return next(new ApiError(404, "Unit not found"));
     return res
     .status(200)
@@ -77,7 +77,7 @@ async function deleteUnit(req, res, next) {
 // GET /api/units/:id/devices
 async function getDevicesByUnitId(req, res, next) {
   try {
-    const devices = await unitService.getDevicesByUnitId(req.params.unitId);
+    const devices = await unitService.getDevicesByUnitId(req.validatedData.unitId);
     if (devices.length === 0) {
       return res.status(404).json(JSend.fail("No devices found for this unit"));
     }
