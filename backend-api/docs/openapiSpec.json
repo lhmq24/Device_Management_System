@@ -52,7 +52,112 @@
   },
   "components": {
     "schemas": {
-        
+        "device": {
+            "type": "object",
+            "properties": {
+                "device_id": {
+                  "type": "integer",
+                  "readOnly": true         
+                },
+                "unit_id": {
+                    "type": "integer",
+                    "description": "The unique identifier for the unit to which the device belongs"
+                },  
+                "device_name": {
+                    "type": "string",
+                    "example": "Device 1"
+                },
+                "device_buy_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2023-01-01"
+                },
+                "device_maintenance_interval": {
+                    "type": "integer",
+                    "example": 30,
+                    "description": "The maintenance interval in days"
+                },
+                "device_image": {
+                    "type": "string",
+                    "format": "uri",
+                    "readOnly": true,
+                    "example": "http://example.com/device_image.jpg",
+                    "description": "The URL of the device image"
+                },
+                "imgFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "writeOnly": true,
+                    "description": "The image file of the device"
+                }
+            }
+        },
+        "unit": {
+            "type": "object",
+            "properties": {
+                "unit_id": {
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "unit_name": {
+                    "type": "string",
+                    "example": "Unit 1"
+                },
+                "unit_location": {
+                    "type": "string",
+                    "example": "This is a unit location"
+                }
+            }
+        },
+        "maintainer": {
+            "type": "object",
+            "properties": {
+                "m_id": {
+                    "type": "integer",
+                    "readOnly": true
+                },
+                "m_name": {
+                    "type": "string",
+                    "example": "Maintainer 1",
+                    "description": "The name of the maintainer"
+                },
+                "m_phone": {
+                    "type": "string",
+                    "example": "+1234567890",
+                    "description": "The phone number of the maintainer"
+                },
+                "m_email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "a@b.com",
+                    "description": "The email address of the maintainer"
+                }    
+            }
+        },
+        "maintenance_report": {
+            "type": "object",
+            "properties": {
+                "device_id": {
+                    "type": "integer",
+                    "description": "The unique identifier for the device"
+                },           
+                "m_id": {
+                    "type": "integer",
+                    "description": "The unique identifier for the maintainer"
+                },
+                "mr_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2023-01-01",
+                    "description": "The date of the maintenance report"
+                },
+                "mr_note": {
+                    "type": "string",
+                    "example": "This is a maintenance report note",
+                    "description": "The note of the maintenance report"
+                }
+            }
+        }
     },
     "responses": {
       

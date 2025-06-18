@@ -18,9 +18,6 @@ const maintenanceReportSchema = z.object({
   mr_note: z.string().nullable().optional(), // TEXT, nullable
 });
 
-// Partial schema for updates (all fields optional)
-// Note: For composite primary keys, partial updates might need special handling
-// depending on how you identify the record to update.
 const partialMaintenanceReportSchema = maintenanceReportSchema.partial();
 
 module.exports = {
