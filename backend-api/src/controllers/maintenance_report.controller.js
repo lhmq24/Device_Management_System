@@ -9,7 +9,7 @@ async function createReport(req, res, next) {
     if (!report) {
       return next(new ApiError(400, "Invalid maintenance report data"));
     }
-    return res.status(201).json(JSend.success({ report }));
+    return res.status(201).json(JSend.success( report ));
   } catch (err) {
     return next(new ApiError(500, err.message));
   }
@@ -52,7 +52,7 @@ async function getReport(req, res, next) {
 // PUT /api/maintenance-reports/:id
 async function updateReport(req, res, next) {
   try {
-    const updated = await reportService.updateReport(req.validatedData.id, req.validatedData.maintenanceReport);
+    const updated = await reportService.updateReport(req.validatedData);
     if (!updated)
       return next(new ApiError(404, "Maintenance report not found"));
     return res
@@ -66,7 +66,7 @@ async function updateReport(req, res, next) {
 // DELETE /api/maintenance-reports/:id
 async function deleteReport(req, res, next) {
   try {
-    const deleted = await reportService.deleteReport(req.validatedData.id);
+    const deleted = await reportService.deleteReport(req.validatedData);
     if (!deleted)
       return next(new ApiError(404, "Maintenance report not found"));
     return res

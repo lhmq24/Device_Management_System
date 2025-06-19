@@ -1,5 +1,6 @@
 const express = require("express");
 const { z } = require("zod");
+const multer = require("multer");
 
 const maintenanceReportsController = require("../controllers/maintenance_report.controller");
 const { methodNotAllowed } = require("../controllers/errors.controller");
@@ -8,6 +9,8 @@ const {
   maintenanceReportSchema,
   partialMaintenanceReportSchema,
 } = require("../schemas/maintenance_report.schema");
+
+const upload = multer();
 
 const router = express.Router();
 module.exports.setup = (app) => {
@@ -40,36 +43,31 @@ module.exports.setup = (app) => {
   // POST /api/maintenance-reports
   router.post(
     "/maintenance-reports",
+    upload.none(),
     validateRequest(
-      z
-        .object({
-          maintenanceReport: maintenanceReportSchema
-            .omit({ m_id: true })
-            .strict(),
-        })
-        .strict()
+         maintenanceReportSchema.strict(),
     ),
     maintenanceReportsController.createReport
   );
 
-  // PUT /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19
+  // PUT /api/maintenance-reports
   router.put(
-    "/maintenance-reports/:id",
+    "/maintenance-reports",
+    upload.none(),
     validateRequest(
-      z.object({
-        id: z.coerce.number().int().positive(),
-        maintenanceReport: partialMaintenanceReportSchema.strict(),
-      })
+        partialMaintenanceReportSchema.strict()
     ),
     maintenanceReportsController.updateReport
   );
 
   // DELETE /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19
   router.delete(
-    "/maintenance-reports/:id",
+    "/maintenance-reports",
     validateRequest(
       z.object({
-        id: z.coerce.number().int().positive(),
+        device_id: z.coerce.number().int().positive(),
+        m_id: z.coerce.number().int().positive(),
+        mr_date: z.coerce.date(),
       })
     ),
     maintenanceReportsController.deleteReport

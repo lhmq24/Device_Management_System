@@ -61,16 +61,19 @@ async function getManyReports(query) {
 }
 
 async function getReportByPK(validatedData) {
-  console.log(validatedData );
   const { device_id, m_id, mr_date } = validatedData;
   return reportRepository().where({ device_id, m_id, mr_date }).first();
 }
 
-async function updateReport(device_id, m_id, mr_date, updatePayload) {
-  const existing = await getReportByPK(device_id, m_id, mr_date);
+async function updateReport(payload) {
+ 
+  const { device_id, m_id, mr_date } = payload;
+
+  const existing = await getReportByPK(payload);
   if (!existing) return null;
 
-  const data = readReportData(updatePayload);
+  const data = readReportData(payload);
+
   if (Object.keys(data).length > 0) {
     await reportRepository().where({ device_id, m_id, mr_date }).update(data);
     return { ...existing, ...data };
@@ -79,8 +82,9 @@ async function updateReport(device_id, m_id, mr_date, updatePayload) {
   return existing;
 }
 
-async function deleteReport(device_id, m_id, mr_date) {
-  const report = await getReportByPK(device_id, m_id, mr_date);
+async function deleteReport(payload) {
+  const report = await getReportByPK(payload);
+  const { device_id, m_id, mr_date } = payload;
   if (!report) return null;
 
   await reportRepository().where({ device_id, m_id, mr_date }).del();

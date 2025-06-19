@@ -1081,12 +1081,21 @@
       "post": {
         "summary": "POST /api/maintenance-reports",
         "responses": {
-          "200": {
+          "201": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/MaintenanceReport"
+                    }
+                  }
                 }
               }
             }
@@ -1110,34 +1119,14 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
           }
         },
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/MaintenanceReport"
               }
             }
           }
@@ -1151,7 +1140,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/MaintenanceReport"
+                    }
+                  }
                 }
               }
             }
@@ -1178,26 +1176,6 @@
           },
           "404": {
             "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1210,40 +1188,14 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/MaintenanceReport"
               }
             }
           }
         },
-        "parameters": [
-          {
-            "name": "device_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "m_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "mr_date",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date"
-            }
-          }
-        ]
+        "parameters": []
       },
       "delete": {
         "summary": "DELETE /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19",
@@ -1253,7 +1205,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": null
+                    }
+                  }
                 }
               }
             }
@@ -1283,27 +1245,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Maintenance report not found"
+                    }
+                  }
                 }
               }
             }
@@ -1489,6 +1441,25 @@
             "type": "integer",
             "example": "1"
           },
+          "m_id": {
+            "type": "integer",
+            "example": "1"
+          },
+          "mr_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2023-01-01",
+            "description": "Maintenance report date"
+          },
+          "mr_note": {
+            "type": "string",
+            "example": "Maintenance note"
+          }
+        }
+      },
+      "InsertMaintenanceReport": {
+        "type": "object",
+        "properties": {
           "m_id": {
             "type": "integer",
             "example": "1"
