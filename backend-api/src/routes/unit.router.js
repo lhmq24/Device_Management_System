@@ -68,19 +68,16 @@ module.exports.setup = (app) => {
   // PUT /api/units/:unitId
   router.put(
     "/units/:unitId",
+    upload.none(),
     validateRequest(
       z.object({
-        // Need JSON object with type
-      //   {
-      //     "unitId": "1",
-      //     "unit": {
-      //         "unit_name": "changed",
-      //         "unit_location": "changed"
-      //     }
-      // }
-        unitId: z.coerce.number().int().positive(),
-        unit: partialUnitSchema.strict(),
-      })
+        unitId: z.coerce.number().int().positive()
+      }).merge(
+      partialUnitSchema
+      .omit({
+        unit_id: true})
+      .strict()
+      )
     ),
     unitsController.updateUnit
   );

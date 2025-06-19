@@ -60,7 +60,6 @@ async function getManyUnits(query) {
 }
 
 async function getUnitById(id) {
-  console.log("getUnitById", id);
   return unitRepository().where("unit_id", id).first();
 }
 
@@ -68,14 +67,16 @@ async function getDevicesByUnitId(unit_id) {
   return knex("device").where("unit_id", unit_id).select("*");
 }
 
-async function updateUnit(id, payload) {
-  const unit = await getUnitById(id);
+async function updateUnit(payload) {
+  console.log("payload: ", payload);
+  console.log("unit_id: ", payload.unitId);
+  const unit = await getUnitById(payload.unitId);
   if (!unit) return null;
 
   const data = readUnitData(payload);
   if (Object.keys(data).length > 0) {
-    await unitRepository().where("unit_id", id).update(data);
-    return { ...unit, ...data };
+    await unitRepository().where("unit_id", payload.unitId).update(data);
+    return { unit_id: unit.unit_id, ...data };
   }
 
   return unit;

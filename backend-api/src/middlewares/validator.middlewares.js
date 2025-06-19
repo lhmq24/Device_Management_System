@@ -9,16 +9,20 @@ function validateRequest(validator) {
   return (req, res, next) => {
     try {
       let input = { ...req.params };
-      if ((req.method === "GET") | (req.method === "DELETE")) {
+      if ((req.method === "GET") || (req.method === "DELETE")) {
         input = { ...input, ...req.query };
       }
-      if ((req.method === "POST") | (req.method === "PUT")) {
+      if ((req.method === "POST") || (req.method === "PUT")) {
         if (req.file && (req.file.originalname === "" || req.file.size === 0)) {
           req.file = undefined;
         }
         input = {
+          ...req.params,
           ...(req.body ? req.body : {}),
         };
+        console.log("Input data:", input);
+        console.log("Params data:", req.params);
+        console.log("Body data:", req.body);
         // Only include `imgFile` if it's present AND non-empty
         if (req.file && req.file.originalname && req.file.size > 0) {
           input.imgFile = req.file;

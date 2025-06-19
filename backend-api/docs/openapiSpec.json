@@ -148,12 +148,12 @@
                       "example": "success"
                     },
                     "data": {
-                        "type": "object",
-                        "properties": {
-                          "unit": {
-                            "$ref": "#/components/schemas/Unit"
-                          }
-                        }         
+                      "type": "object",
+                      "properties": {
+                        "unit": {
+                          "$ref": "#/components/schemas/Unit"
+                        }
+                      }
                     }
                   }
                 }
@@ -197,30 +197,29 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ]
       },
       "put": {
-        "summary": "PUT /api/units/{id}",
+        "summary": "PUT /api/units/{unitId}",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Unit"
+                    }
+                  }
                 }
               }
             }
@@ -244,34 +243,14 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
           }
         },
         "requestBody": {
           "required": true,
-          "content": {
-            "application/json": {
+          "content": {           
+            "multipart/form-data": {
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/InsertUnit"
               }
             }
           }
@@ -282,7 +261,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ]
