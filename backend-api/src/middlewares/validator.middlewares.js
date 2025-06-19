@@ -20,13 +20,15 @@ function validateRequest(validator) {
           ...req.params,
           ...(req.body ? req.body : {}),
         };
-        console.log("Input data:", input);
-        console.log("Params data:", req.params);
-        console.log("Body data:", req.body);
+
         // Only include `imgFile` if it's present AND non-empty
         if (req.file && req.file.originalname && req.file.size > 0) {
           input.imgFile = req.file;
         }
+
+        console.log("Input data:", input);
+        console.log("Params data:", req.params);
+        console.log("Body data:", req.body);
       }
 
       const result = validator.parse(input);

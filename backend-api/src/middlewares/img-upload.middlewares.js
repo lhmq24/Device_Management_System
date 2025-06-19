@@ -4,7 +4,7 @@ const ApiError = require("../api-error");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "../../public/uploads/");
+    cb(null, "./public/uploads/");
   },
   filename: function (req, file, cb) {
     const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -12,14 +12,17 @@ const storage = multer.diskStorage({
   },
 });
 
+
 function deviceImgUpload(req, res, next) {
   const upload = multer({ storage: storage }).single("imgFile");
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
+      console.error("Multer error:", err);
       return next(
         new ApiError(400, "An error occurred while uploading the device image")
       );
     } else if (err) {
+      console.error("Unknown upload error:", err); // ADD THIS
       return next(
         new ApiError(
           500,

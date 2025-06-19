@@ -32,13 +32,11 @@ module.exports.setup = (app) => {
     "/units",
     upload.none(),
     validateRequest(
-      // z.object({
       unitSchema
         .omit({
           unit_id: true,
         })
         .strict()
-      // })
     ),
     unitsController.createUnit
   );

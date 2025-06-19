@@ -11,13 +11,16 @@ function getImagePath(file) {
 // POST /api/devices
 async function createDevice(req, res, next) {
   try {
+    console.log(req.validatedData);
+    console.log(req.file);
     const deviceData = {
       ...req.validatedData,
       device_img: getImagePath(req.file),
     };
-
     const device = await devicesService.createDevice(deviceData);
-
+    if(!device) {
+      return next(new ApiError(400, "Invalid device data"))
+    }
     return res
       .status(201)
       .json(JSend.success({ device }));

@@ -29,14 +29,43 @@ module.exports.setup = (app) => {
   );
 
   // POST /api/devices
-    router.post(
-        "/devices",
+  router.post(
+    "/devices",
+    [
+      deviceImgUpload,
+      validateRequest(
+        deviceSchema
+          .omit({
+            device_id: true,
+          })
+          .strict()
+      ),
+    ],
+    devicesController.createDevice
+  );
+
+  // GET /api/devices/:id
+  router.get(
+    "/devices/:id",
+    validateRequest(
+      z
+        .object({
+          id: z.coerce.number().int().nonnegative(),
+        })
+        .strict()
+    ),
+    devicesController.getDevice
+  );
+
+  // PUT /api/devices/:id
+  router.put(
+    "/devices/:id",
     [
       deviceImgUpload,
       validateRequest(
         z
           .object({
-            device: deviceSchema
+            device: partialdeviceSchema
               .omit({
                 device_id: true,
               })
@@ -61,11 +90,11 @@ module.exports.setup = (app) => {
           .strict()
       ),
     ],
-    devicesController.createDevice
+    devicesController.updateDevice
   );
 
-  // GET /api/devices/:id
-  router.get(
+  // DELETE /api/devices/:id
+  router.delete(
     "/devices/:id",
     validateRequest(
       z
@@ -74,69 +103,19 @@ module.exports.setup = (app) => {
         })
         .strict()
     ),
-    devicesController.getDevice
+    devicesController.deleteDevice
   );
 
-    // PUT /api/devices/:id
-    router.put( 
-        "/devices/:id",
-        [
-        deviceImgUpload,
-        validateRequest(
-            z
-                .object({
-                device: partialdeviceSchema
-                    .omit({
-                    device_id: true,
-                    })
-                    .strict(),
-                imgFile: z
-                    .union([
-                    z.undefined(),
-                    z.null(),
-                    z.object({
-                        fieldname: z.literal("imgFile"),
-                        originalname: z.string(),
-                        encoding: z.string(),
-                        mimetype: z.string(),
-                        destination: z.string(),
-                        filename: z.string(),
-                        path: z.string(),
-                        size: z.number(),
-                    }),
-                    ])
-                    .optional(),
-                })
-                .strict()
-        ),
-        ],
-        devicesController.updateDevice
-    );
+  // Method Not Allowed
+  router.all("/devices", (req, res, next) => {
+    if (!["GET", "POST"].includes(req.method))
+      return methodNotAllowed(req, res);
+    next();
+  });
 
-  // DELETE /api/devices/:id
-    router.delete(
-        "/devices/:id",
-        validateRequest(
-        z
-            .object({
-            id: z.coerce.number().int().nonnegative(),
-            })
-            .strict()
-        ),
-        devicesController.deleteDevice
-    );
-
-    // Method Not Allowed
-    router.all("/devices", (req, res, next) => {
-      if (!["GET", "POST"].includes(req.method))
-        return methodNotAllowed(req, res);
-      next();
-    });
-
-    router.all("/devices/:id", (req, res, next) => {
-      if (!["GET", "PUT", "DELETE"].includes(req.method))
-        return methodNotAllowed(req, res);
-      next();
-    });
-    
-}
+  router.all("/devices/:id", (req, res, next) => {
+    if (!["GET", "PUT", "DELETE"].includes(req.method))
+      return methodNotAllowed(req, res);
+    next();
+  });
+};
