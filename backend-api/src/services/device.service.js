@@ -89,6 +89,7 @@ async function getManyDevices(query) {
 
 
 async function getDeviceById(id) {
+  console.log(deviceRepository().where("device_id", id).select("*").first().toSQL().toNative());
   return deviceRepository().where("device_id", id).select("*").first();
 }
 

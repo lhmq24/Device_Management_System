@@ -66,6 +66,14 @@ module.exports.setup = (app) => {
     "/units/:unitId",
     validateRequest(
       z.object({
+        // Need JSON object with type
+      //   {
+      //     "unitId": "1",
+      //     "unit": {
+      //         "unit_name": "changed",
+      //         "unit_location": "changed"
+      //     }
+      // }
         unitId: z.coerce.number().int().positive(),
         unit: partialUnitSchema.strict(),
       })

@@ -20,7 +20,7 @@ async function createMaintainer(req, res, next) {
 // GET /api/maintainers
 async function getMaintainers(req, res, next) {
   try {
-    const result = await maintainerService.getManyMaintainers(req.query);
+    const result = await maintainerService.getManyMaintainers(req.validatedData);
     if (result.maintainers.length === 0) {
       return res.status(404).json(JSend.fail("No maintainers found"));
     }
@@ -40,7 +40,7 @@ async function getMaintainers(req, res, next) {
 // GET /api/maintainers/:id
 async function getMaintainer(req, res, next) {
   try {
-    const maintainer = await maintainerService.getMaintainerById(req.params.id);
+    const maintainer = await maintainerService.getMaintainerById(req.validatedData.id);
     if (!maintainer) return next(new ApiError(404, "Maintainer not found"));
     return res
       .status(200)
@@ -54,8 +54,8 @@ async function getMaintainer(req, res, next) {
 async function updateMaintainer(req, res, next) {
   try {
     const updated = await maintainerService.updateMaintainer(
-      req.params.id,
-      req.body
+      req.validatedData.id,
+      req.validatedData.maintainer
     );
     if (!updated) return next(new ApiError(404, "Maintainer not found"));
     return res

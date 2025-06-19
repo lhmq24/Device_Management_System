@@ -58,6 +58,13 @@ module.exports.setup = (app) => {
         "/maintainers/:id",
         validateRequest(
         z.object({
+            // Need JSON object with type
+          //   {
+          //     "id": "1",
+          //     "maintainer": {
+          //         "m_name": "changed"
+          //     }
+          // }
             id: z.coerce.number().int().positive(),
             maintainer: partialMaintainerSchema.strict(),
         })

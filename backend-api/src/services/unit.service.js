@@ -60,6 +60,7 @@ async function getManyUnits(query) {
 }
 
 async function getUnitById(id) {
+  console.log("getUnitById", id);
   return unitRepository().where("unit_id", id).first();
 }
 
