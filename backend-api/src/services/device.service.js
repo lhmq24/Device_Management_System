@@ -101,7 +101,6 @@ async function getDevicesByName(device_name) {
  * @param {PartialDevice} updateData
  */
 async function updateDevice(updateData) {
-  console.log("updateData: ", updateData);
 
   const deviceFromDb = await deviceRepository()
     .where("device_id", updateData.deviceId)

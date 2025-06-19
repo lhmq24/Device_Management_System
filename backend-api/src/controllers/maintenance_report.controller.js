@@ -38,7 +38,8 @@ async function getReports(req, res, next) {
 // GET /api/maintenance-reports/:id
 async function getReport(req, res, next) {
   try {
-    const report = await reportService.getReportById(req.validatedData.id);
+    console.log("controller: " ,req.validatedData);
+    const report = await reportService.getReportByPK(req.validatedData);
     if (!report) return next(new ApiError(404, "Maintenance report not found"));
     return res
       .status(200)

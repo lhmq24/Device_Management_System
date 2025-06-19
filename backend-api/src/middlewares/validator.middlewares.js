@@ -10,7 +10,10 @@ function validateRequest(validator) {
     try {
       let input = { ...req.params };
       if ((req.method === "GET") || (req.method === "DELETE")) {
-        input = { ...input, ...req.query };
+        console.log("input params: ", req.params);
+        console.log("input query: ", req.query);
+        input = { ...req.params, ...req.query };
+        console.log("input: ", input);
       }
       if ((req.method === "POST") || (req.method === "PUT")) {
         if (req.file && (req.file.originalname === "" || req.file.size === 0)) {
@@ -27,12 +30,13 @@ function validateRequest(validator) {
         // Only include `imgFile` if it's present AND non-empty
         if (req.file && req.file.originalname && req.file.size > 0) {
           input.imgFile = req.file;
-        }
-
-        console.log("Input data:", input);
-        console.log("Params data:", req.params);
-        console.log("Body data:", req.body);
+        }       
       }
+
+      console.log("Input data:", input);
+      console.log("Params data:", req.params);
+      console.log("Body data:", req.body);
+      console.log("FINAL input to validate:", input);
 
       const result = validator.parse(input);
       req.validatedData = result;

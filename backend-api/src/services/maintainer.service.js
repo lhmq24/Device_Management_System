@@ -25,7 +25,7 @@ function readMaintainerData(payload) {
 async function createMaintainer(payload) {
   const data = readMaintainerData(payload);
   const [m_id] = await maintainerRepository().insert(data).returning("m_id");
-  return { m_id, ...data };
+  return { m_id: m_id.m_id, ...data };
 }
 
 async function getManyMaintainers(query) {
@@ -65,14 +65,14 @@ async function getMaintainerById(id) {
   return maintainerRepository().where("m_id", id).first();
 }
 
-async function updateMaintainer(id, payload) {
-  const maintainer = await getMaintainerById(id);
+async function updateMaintainer(payload) {
+  const maintainer = await getMaintainerById(payload.id);
   if (!maintainer) return null;
 
   const data = readMaintainerData(payload);
   if (Object.keys(data).length > 0) {
-    await maintainerRepository().where("m_id", id).update(data);
-    return { ...maintainer, ...data };
+    await maintainerRepository().where("m_id", payload.id).update(data);
+    return { m_id: payload.id, ...data };
   }
 
   return maintainer;

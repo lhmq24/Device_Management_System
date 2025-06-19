@@ -12,19 +12,29 @@ const {
 const router = express.Router();
 module.exports.setup = (app) => {
   app.use("/api", router);
-  // GET /api/maintenance-reports
+  // GET /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19
   router.get(
     "/maintenance-reports",
     validateRequest(
       z
         .object({
-          search: z.string().max(255).optional(),
+          device_id: z.coerce.number().int().positive().optional(),
+          m_id: z.coerce.number().int().positive().optional(),
+          mr_date: z.coerce.date().optional(),
           page: z.coerce.number().nonnegative().default(1),
           limit: z.coerce.number().nonnegative().default(5),
         })
         .strict()
     ),
-    maintenanceReportsController.getReports
+    (req, res, next) => {
+      const { device_id, m_id, mr_date } = req.validatedData;
+
+      if (device_id && m_id && mr_date) {
+        return maintenanceReportsController.getReport(req, res, next); // get single report
+      }
+
+      return maintenanceReportsController.getReports(req, res, next); // paginated list
+    }
   );
 
   // POST /api/maintenance-reports
@@ -42,18 +52,7 @@ module.exports.setup = (app) => {
     maintenanceReportsController.createReport
   );
 
-  // GET /api/maintenance-reports/:id
-  router.get(
-    "/maintenance-reports/:id",
-    validateRequest(
-      z.object({
-        id: z.coerce.number().int().positive(),
-      })
-    ),
-    maintenanceReportsController.getReport
-  );
-
-  // PUT /api/maintenance-reports/:id
+  // PUT /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19
   router.put(
     "/maintenance-reports/:id",
     validateRequest(
@@ -65,7 +64,7 @@ module.exports.setup = (app) => {
     maintenanceReportsController.updateReport
   );
 
-  // DELETE /api/maintenance-reports/:id
+  // DELETE /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19
   router.delete(
     "/maintenance-reports/:id",
     validateRequest(
@@ -89,4 +88,4 @@ module.exports.setup = (app) => {
       return methodNotAllowed(req, res);
     next();
   });
-}
+};

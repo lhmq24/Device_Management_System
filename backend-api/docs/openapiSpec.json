@@ -619,16 +619,6 @@
               }
             }
           },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailResponse"
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal server error",
             "content": {
@@ -641,26 +631,6 @@
           },
           "404": {
             "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -691,7 +661,27 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "maintainers": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Maintainer"
+                          }
+                        },
+                        "metadata": {
+                          "$ref": "#/components/schemas/Metadata"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -721,12 +711,21 @@
       "post": {
         "summary": "POST /api/maintainers",
         "responses": {
-          "200": {
+          "201": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Maintainer"
+                    }
+                  }
                 }
               }
             }
@@ -750,34 +749,14 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
           }
         },
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/InsertMaintainer"
               }
             }
           }
@@ -793,13 +772,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Maintainer"
+                    }
+                  }
                 }
               }
             }
           },
-          "400": {
-            "description": "Bad request",
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -810,16 +798,6 @@
           },
           "500": {
             "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -848,17 +826,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Maintainer"
+                    }
+                  }
                 }
               }
             }
@@ -882,34 +859,14 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
           }
         },
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/InsertMaintainer"
               }
             }
           }
@@ -920,7 +877,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ]
@@ -1004,13 +961,77 @@
     "/api/maintenance-reports": {
       "get": {
         "summary": "GET /api/maintenance-reports",
+        "description": "Returns all maintenance reports or filters by device_id, m_id, and mr_date if provided as query parameters.",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "m_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "mr_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "reports": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/MaintenanceReport"
+                          }
+                        },
+                        "metadata": {
+                          "$ref": "#/components/schemas/Metadata"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1031,6 +1052,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Maintenance report not found"
+                    }
+                  }
                 }
               }
             }
@@ -1101,66 +1142,9 @@
             }
           }
         }
-      }
-    },
-    "/api/maintenance-reports/{id}": {
-      "get": {
-        "summary": "GET /api/maintenance-reports/{id}",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
       },
       "put": {
-        "summary": "PUT /api/maintenance-reports/{id}",
+        "summary": "PUT /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19",
         "responses": {
           "200": {
             "description": "Success",
@@ -1235,17 +1219,34 @@
         },
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
+            "name": "device_id",
+            "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
+            }
+          },
+          {
+            "name": "m_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "mr_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ]
       },
       "delete": {
-        "summary": "DELETE /api/maintenance-reports/{id}",
+        "summary": "DELETE /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19",
         "responses": {
           "200": {
             "description": "Success",
@@ -1310,11 +1311,28 @@
         },
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
+            "name": "device_id",
+            "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
+            }
+          },
+          {
+            "name": "m_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "mr_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ]
@@ -1445,6 +1463,25 @@
           }
         }
       },
+      "InsertMaintainer": {
+        "type": "object",
+        "properties": {
+          "m_name": {
+            "type": "string",
+            "example": "Maintainer Name"
+          },
+          "m_phone": {
+            "type": "string",
+            "format": "phone",
+            "example": "1234567890"
+          },
+          "m_email": {
+            "type": "string",
+            "format": "email",
+            "example": "maintainer@email.com"
+          }
+        }
+      },
       "MaintenanceReport": {
         "type": "object",
         "properties": {
@@ -1526,7 +1563,8 @@
             "example": "error"
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "example": "Internal server error"
           }
         }
       }

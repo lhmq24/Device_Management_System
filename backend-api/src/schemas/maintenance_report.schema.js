@@ -10,11 +10,12 @@ const maintenanceReportSchema = z.object({
     .number()
     .int()
     .nonnegative({ message: "Maintainer ID must be a non-negative integer." }), // Foreign Key, not null
-  mr_date: z.coerce.date({
-    message: "Maintenance report date must be a valid date.",
-    required_error: "Maintenance report date is required.",
-    
-  }), // DATE not null
+    mr_date: z
+    .string()
+    .transform((val) => new Date(val))
+    .refine((val) => !isNaN(val.getTime()), {
+      message: "Invalid date",
+    }),
   mr_note: z.string().nullable().optional(), // TEXT, nullable
 });
 

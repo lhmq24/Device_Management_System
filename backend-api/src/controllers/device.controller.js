@@ -11,8 +11,6 @@ function getImagePath(file) {
 // POST /api/devices
 async function createDevice(req, res, next) {
   try {
-    console.log(req.validatedData);
-    console.log(req.file);
     const deviceData = {
       ...req.validatedData,
       device_img: getImagePath(req.file),

@@ -1,5 +1,7 @@
 const express = require("express");
 const { z } = require("zod");
+const multer = require("multer");
+
 
 const maintainersController = require("../controllers/maintainer.controller");
 const { methodNotAllowed } = require("../controllers/errors.controller");
@@ -9,90 +11,86 @@ const {
   partialMaintainerSchema,
 } = require("../schemas/maintainer.schema");
 
+const upload = multer(); // memory storage
+
 const router = express.Router();
 module.exports.setup = (app) => {
-    app.use("/api", router);
-    // GET /api/maintainers
-    router.get(
-      "/maintainers",
-      validateRequest(
-        z
-          .object({
-            search: z.string().max(255).optional(),
-            page: z.coerce.number().nonnegative().default(1),
-            limit: z.coerce.number().nonnegative().default(5),
-          })
-          .strict()
-      ),
-      maintainersController.getMaintainers
-    );
-    
-    // POST /api/maintainers
-    router.post(
-        "/maintainers",
-        validateRequest(
-        z.object({
-            maintainer: maintainerSchema
-            .omit({
-                m_id: true,
-            })
-            .strict(),
+  app.use("/api", router);
+  // GET /api/maintainers
+  router.get(
+    "/maintainers",
+    validateRequest(
+      z
+        .object({
+          search: z.string().max(255).optional(),
+          page: z.coerce.number().nonnegative().default(1),
+          limit: z.coerce.number().nonnegative().default(5),
         })
-        ),
-        maintainersController.createMaintainer
-    );
-    
-    // GET /api/maintainers/:id
-    router.get(
-      "/maintainers/:id",
-      validateRequest(
-        z.object({
-          id: z.coerce.number().int().positive(),
-        })
-      ),
-      maintainersController.getMaintainer
-    );
-    
-    // PUT /api/maintainers/:id
-    router.put(
-        "/maintainers/:id",
-        validateRequest(
-        z.object({
-            // Need JSON object with type
-          //   {
-          //     "id": "1",
-          //     "maintainer": {
-          //         "m_name": "changed"
-          //     }
-          // }
-            id: z.coerce.number().int().positive(),
-            maintainer: partialMaintainerSchema.strict(),
-        })
-        ),
-        maintainersController.updateMaintainer
-    );
-    
-    // DELETE /api/maintainers/:id
-    router.delete(
-        "/maintainers/:id",
-        validateRequest(
-        z.object({
-            id: z.coerce.number().int().positive(),
-        })
-        ),
-        maintainersController.deleteMaintainer
-    );
-    
-    // Method Not Allowed for all other methods
-    router.all("/maintainers", (req, res, next) => {
-      if (!["GET", "POST"].includes(req.method))
-        return methodNotAllowed(req, res);
-      next();
-    });
+        .strict()
+    ),
+    maintainersController.getMaintainers
+  );
 
-    router.all("/maintainers/:id", (req, res, next) => {
-      if (!["GET", "PUT", "DELETE"].includes(req.method))
-        return methodNotAllowed(req, res);
-      next();
-    });
-    }
+  // POST /api/maintainers
+  router.post(
+    "/maintainers",
+    upload.none(),
+    validateRequest(
+      maintainerSchema
+        .omit({
+          m_id: true,
+        })
+        .strict()
+    ),
+    maintainersController.createMaintainer
+  );
+
+  // GET /api/maintainers/:id
+  router.get(
+    "/maintainers/:id",
+    validateRequest(
+      z.object({
+        id: z.coerce.number().int().positive(),
+      })
+    ),
+    maintainersController.getMaintainer
+  );
+
+  // PUT /api/maintainers/:id
+  router.put(
+    "/maintainers/:id",
+    upload.none(),
+    validateRequest(
+      z.object({
+        id: z.coerce.number().int().positive(),
+      }).merge( partialMaintainerSchema.omit({
+        m_id: true,
+      }).strict(),)
+    ),
+    maintainersController.updateMaintainer
+  );
+
+  // DELETE /api/maintainers/:id
+  router.delete(
+    "/maintainers/:id",
+    validateRequest(
+      z.object({
+        id: z.coerce.number().int().positive(),
+      })
+    ),
+    maintainersController.deleteMaintainer
+  );
+
+  // Method Not Allowed for all other methods
+  router.all("/maintainers", (req, res, next) => {
+    if (!["GET", "POST"].includes(req.method))
+      return methodNotAllowed(req, res);
+    next();
+  });
+
+  router.all("/maintainers/:id", (req, res, next) => {
+    if (!["GET", "PUT", "DELETE"].includes(req.method))
+      return methodNotAllowed(req, res);
+    next();
+  });
+};

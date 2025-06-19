@@ -11,7 +11,7 @@ async function createMaintainer(req, res, next) {
     if (!maintainer) {
       return next(new ApiError(400, "Invalid maintainer data"));
     }
-    return res.status(201).json(JSend.success({ maintainer }));
+    return res.status(201).json(JSend.success( maintainer ));
   } catch (err) {
     return next(new ApiError(500, err.message));
   }
@@ -44,7 +44,7 @@ async function getMaintainer(req, res, next) {
     if (!maintainer) return next(new ApiError(404, "Maintainer not found"));
     return res
       .status(200)
-      .json(JSend.success({ maintainer }));
+      .json(JSend.success(maintainer));
   } catch (err) {
     return next(new ApiError(500, err.message));
   }
@@ -53,14 +53,11 @@ async function getMaintainer(req, res, next) {
 // PUT /api/maintainers/:id
 async function updateMaintainer(req, res, next) {
   try {
-    const updated = await maintainerService.updateMaintainer(
-      req.validatedData.id,
-      req.validatedData.maintainer
-    );
+    const updated = await maintainerService.updateMaintainer(req.validatedData);
     if (!updated) return next(new ApiError(404, "Maintainer not found"));
     return res
       .status(200)
-      .json(JSend.success({ maintainer: updated }));
+      .json(JSend.success(updated));
   } catch (err) {
     return next(new ApiError(500, err.message));
   }

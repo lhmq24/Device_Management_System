@@ -35,8 +35,6 @@ async function getManyReports(query) {
     limit = 10,
     device_id,
     m_id,
-    date_from,
-    date_to,
     sort_by = "mr_date",
     order = "desc",
   } = query;
@@ -47,8 +45,6 @@ async function getManyReports(query) {
     .where((builder) => {
       if (device_id) builder.where("device_id", device_id);
       if (m_id) builder.where("m_id", m_id);
-      if (date_from) builder.where("mr_date", ">=", date_from);
-      if (date_to) builder.where("mr_date", "<=", date_to);
     })
     .select(knex.raw("COUNT(*) OVER() AS record_count"), "*")
     .orderBy(sort_by, order)
@@ -64,7 +60,9 @@ async function getManyReports(query) {
   };
 }
 
-async function getReportByPK(device_id, m_id, mr_date) {
+async function getReportByPK(validatedData) {
+  console.log(validatedData );
+  const { device_id, m_id, mr_date } = validatedData;
   return reportRepository().where({ device_id, m_id, mr_date }).first();
 }
 
