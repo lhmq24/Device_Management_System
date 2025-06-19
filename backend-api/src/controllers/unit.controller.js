@@ -9,7 +9,7 @@ async function createUnit(req, res, next) {
     if (!unit) {
       return next(new ApiError(400, "Invalid unit data"));
     }
-    return res.status(201).json(JSend.success({ unit }));
+    return res.status(201).json(JSend.success(unit));
   } catch (err) {
     return next(new ApiError(500, err.message));
   }

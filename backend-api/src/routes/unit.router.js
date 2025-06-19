@@ -5,6 +5,9 @@ const unitsController = require("../controllers/unit.controller");
 const { methodNotAllowed } = require("../controllers/errors.controller");
 const { validateRequest } = require("../middlewares/validator.middlewares");
 const { unitSchema, partialUnitSchema } = require("../schemas/unit.schema");
+const multer = require("multer");
+
+const upload = multer();
 
 const router = express.Router();
 module.exports.setup = (app) => {
@@ -27,14 +30,15 @@ module.exports.setup = (app) => {
   // POST /api/units
   router.post(
     "/units",
+    upload.none(),
     validateRequest(
-      z.object({
-        unit: unitSchema
-          .omit({
-            unit_id: true,
-          })
-          .strict(),
-      })
+      // z.object({
+      unitSchema
+        .omit({
+          unit_id: true,
+        })
+        .strict()
+      // })
     ),
     unitsController.createUnit
   );

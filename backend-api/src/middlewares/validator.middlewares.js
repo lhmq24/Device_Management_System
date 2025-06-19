@@ -17,11 +17,12 @@ function validateRequest(validator) {
           req.file = undefined;
         }
         input = {
-          // ...input,
           ...(req.body ? req.body : {}),
-          imgFile: req.file ? req.file : undefined,
-          // ...(req.file ? { avatarFile: req.file } : {}),
         };
+        // Only include `imgFile` if it's present AND non-empty
+        if (req.file && req.file.originalname && req.file.size > 0) {
+          input.imgFile = req.file;
+        }
       }
 
       const result = validator.parse(input);

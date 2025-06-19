@@ -23,8 +23,8 @@ function readUnitData(payload) {
 
 async function createUnit(payload) {
   const data = readUnitData(payload);
-  const [unit_id] = await unitRepository().insert(data).returning("unit_id");
-  return { unit_id, ...data };
+  const unit_id = await unitRepository().insert(data).returning("unit_id");
+  return { unit_id: unit_id[0].unit_id, ...data };
 }
 
 async function getManyUnits(query) {
