@@ -59,35 +59,21 @@ module.exports.setup = (app) => {
 
   // PUT /api/devices/:id
   router.put(
-    "/devices/:id",
+    "/devices/:deviceId",
     [
       deviceImgUpload,
       validateRequest(
         z
           .object({
-            device: partialdeviceSchema
+            deviceId: z.coerce.number().int().nonnegative(),
+          })
+          .merge(
+            partialdeviceSchema
               .omit({
                 device_id: true,
               })
-              .strict(),
-            imgFile: z
-              .union([
-                z.undefined(),
-                z.null(),
-                z.object({
-                  fieldname: z.literal("imgFile"),
-                  originalname: z.string(),
-                  encoding: z.string(),
-                  mimetype: z.string(),
-                  destination: z.string(),
-                  filename: z.string(),
-                  path: z.string(),
-                  size: z.number(),
-                }),
-              ])
-              .optional(),
-          })
-          .strict()
+              .strict()
+          )
       ),
     ],
     devicesController.updateDevice

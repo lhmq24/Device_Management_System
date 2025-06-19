@@ -477,16 +477,25 @@
         }
       }
     },
-    "/api/devices/{id}": {
+    "/api/devices/{deviceId}": {
       "get": {
-        "summary": "GET /api/devices/{id}",
+        "summary": "GET /api/devices/{deviceId}",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Device"
+                    }
+                  }
                 }
               }
             }
@@ -524,7 +533,7 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "deviceId",
             "in": "path",
             "required": true,
             "schema": {
@@ -534,24 +543,23 @@
         ]
       },
       "put": {
-        "summary": "PUT /api/devices/{id}",
+        "summary": "PUT /api/devices/{deviceId}",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FailResponse"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Device"
+                    }
+                  }
                 }
               }
             }
@@ -568,26 +576,6 @@
           },
           "404": {
             "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -600,16 +588,16 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/InsertDevice"
               }
             }
           }
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "deviceId",
             "in": "path",
             "required": true,
             "schema": {
@@ -619,7 +607,7 @@
         ]
       },
       "delete": {
-        "summary": "DELETE /api/devices/{id}",
+        "summary": "DELETE /api/devices/{deviceId}",
         "responses": {
           "200": {
             "description": "Success",
@@ -684,11 +672,11 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "deviceId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ]

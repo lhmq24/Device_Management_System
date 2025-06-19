@@ -16,6 +16,9 @@ function validateRequest(validator) {
         if (req.file && (req.file.originalname === "" || req.file.size === 0)) {
           req.file = undefined;
         }
+        if (req.body && typeof req.body.imgFile === "string" && req.body.imgFile === "") {
+          delete req.body.imgFile;
+        }
         input = {
           ...req.params,
           ...(req.body ? req.body : {}),
@@ -34,7 +37,6 @@ function validateRequest(validator) {
       const result = validator.parse(input);
       req.validatedData = result;
 
-      // validator.parse({ input });
       return next();
     } catch (error) {
       if (error instanceof z.ZodError) {

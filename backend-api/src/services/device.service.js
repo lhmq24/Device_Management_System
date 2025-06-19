@@ -40,7 +40,7 @@ function readDeviceData(payload) {
 async function createDevice(payload) {
   const deviceData = readDeviceData(payload);
   const insertedRow = await deviceRepository().insert(deviceData).returning("device_id");
-  return { device_id: insertedRow.device_id, ...deviceData }; 
+  return { device_id: insertedRow[0].device_id, ...deviceData }; 
 }
 
 async function getManyDevices(query) {
@@ -89,7 +89,6 @@ async function getManyDevices(query) {
 
 
 async function getDeviceById(id) {
-  console.log(deviceRepository().where("device_id", id).select("*").first().toSQL().toNative());
   return deviceRepository().where("device_id", id).select("*").first();
 }
 
@@ -101,9 +100,11 @@ async function getDevicesByName(device_name) {
  * @param {Number} deviceId
  * @param {PartialDevice} updateData
  */
-async function updateDevice(id, updateData) {
+async function updateDevice(updateData) {
+  console.log("updateData: ", updateData);
+
   const deviceFromDb = await deviceRepository()
-    .where("device_id", id)
+    .where("device_id", updateData.deviceId)
     .select("*")
     .first();
 
@@ -114,7 +115,7 @@ async function updateDevice(id, updateData) {
   const deviceData = readDeviceData(updateData);
 
   if (Object.keys(deviceData).length > 0) {
-    await deviceRepository().where("device_id", id).update(deviceData);
+    await deviceRepository().where("device_id", updateData.deviceId).update(deviceData);
 
     if (
       deviceData.device_img &&
