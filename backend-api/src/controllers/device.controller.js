@@ -70,7 +70,7 @@ async function getDevice(req, res, next) {
       return next(new ApiError(404, "Device not found"));
     }
 
-    return res.status(200).json(JSend.success({ device }));
+    return res.status(200).json(JSend.success(device));
   } catch (error) {
     console.log(error);
     return next(new ApiError(500, "Internal Server Error"));
