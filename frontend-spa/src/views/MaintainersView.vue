@@ -19,20 +19,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import {
   getMaintainers,
   createMaintainer,
   updateMaintainer,
   deleteMaintainer,
 } from '../services/maintainerService.js'
+import { useMaintainerState } from '../composables/useMaintainerState.js';
+const { maintainers, selected, isEditing } = useMaintainerState();
 
 import MaintainerForm from '../components/MaintainerForm.vue'
 import MaintainerTable from '../components/MaintainerTable.vue'
 
-const maintainers = ref([])
-const selected = ref(null)
-const isEditing = ref(false)
+
 
 async function load() {
   const response = await getMaintainers()

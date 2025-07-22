@@ -56,20 +56,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import {  onMounted } from 'vue'
 import { getDevices, createDevice, updateDevice, deleteDevice } from '../services/deviceService'
 import { getUnits } from '../services/unitService'
 
 import DeviceForm from '../components/DeviceForm.vue'
 import DeviceTable from '../components/DeviceTable.vue'
+import { useDeviceState } from '../composables/useDeviceState'  
 
-const devices = ref([])
-const units = ref([])
-const selectedDevice = ref(null)
-const isEditing = ref(false)
-const showForm = ref(false)
-const searchTerm = ref('')
-
+const { devices, units, selectedDevice, isEditing, showForm, searchTerm, filteredDevices } = useDeviceState()
 onMounted(async () => {
   await load()
 })
@@ -111,13 +106,6 @@ function handleCancel() {
   isEditing.value = false
   showForm.value = false
 }
-
-const filteredDevices = computed(() => {
-  if (!searchTerm.value.trim()) return devices.value
-  return devices.value.filter((device) =>
-    device.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
-  )
-})
 
 function toggleForm() {
   if (showForm.value || isEditing.value) {

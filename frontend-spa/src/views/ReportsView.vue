@@ -21,19 +21,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { getReports, createReport, updateReport, deleteReport } from '../services/reportService.js'
+import { onMounted } from 'vue'
+
+import {
+  getReports,
+  createReport,
+  updateReport,
+  deleteReport
+} from '../services/reportService.js'
+
 import { getDevices } from '../services/deviceService.js'
 import { getMaintainers } from '../services/maintainerService.js'
 
 import ReportForm from '../components/ReportForm.vue'
 import ReportTable from '../components/ReportTable.vue'
 
-const reports = ref([])
-const devices = ref([])
-const maintainers = ref([])
-const selected = ref(null)
-const isEditing = ref(false)
+import { useReportState } from '../composables/useReportState.js'
+
+const {
+  reports,
+  devices,
+  maintainers,
+  selected,
+  isEditing
+} = useReportState()
 
 async function load() {
   const resReports = await getReports()
@@ -50,8 +61,8 @@ async function handleCreate(data) {
   await load()
 }
 
-function startEdit(r) {
-  selected.value = r
+function startEdit(report) {
+  selected.value = report
   isEditing.value = true
 }
 
