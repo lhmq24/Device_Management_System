@@ -9,6 +9,14 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+import { useAuth } from '@/composables/useAuth'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
+
+const { restoreAuth } = useAuth()
+
+onMounted(() => {
+  restoreAuth()
+})
 </script>

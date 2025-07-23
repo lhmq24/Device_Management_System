@@ -31,16 +31,22 @@
           </li>
         </ul>
 
-        <!-- Google Auth Buttons -->
+        <!-- Auth buttons -->
         <div class="d-flex">
-          <div v-if="!isLoggedIn">
-            <button class="btn btn-outline-light btn-sm" @click="handleLogin">
-              Login with Google
-            </button>
-          </div>
-          <div v-else class="d-flex align-items-center gap-2">
-            <img :src="user.picture" alt="avatar" class="rounded-circle" width="32" height="32" />
-            <span class="text-white">{{ user.name }}</span>
+          <GoogleLogin
+            v-if="!isLoggedIn"
+            :client-id="clientId"
+            :callback="handleCredentialResponse"
+            popup-type="TOKEN"
+          >
+            <template #default>
+              <button class="btn btn-outline-light btn-sm">
+                <i class="fab fa-google me-1"></i> Login with Google
+              </button>
+            </template>
+          </GoogleLogin>
+
+          <div v-if="isLoggedIn" class="d-flex align-items-center gap-2">
             <button class="btn btn-outline-danger btn-sm" @click="handleLogout">Logout</button>
           </div>
         </div>
@@ -50,31 +56,37 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { GoogleLogin } from 'vue3-google-login'
+import { useAuth } from '@/composables/useAuth'
 
-const user = ref(null)
-const isLoggedIn = ref(false)
-const $googleAuth = inject('googleAuth') || inject('$googleAuth')
+const { isLoggedIn, setAuth, clearAuth } = useAuth() 
 
-function handleLogin() {
-  if (!$googleAuth) {
-    alert('Google Auth plugin not available')
-    return
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+
+console.log("isLoggedIn when init AppHeader:", isLoggedIn.value)
+
+const handleCredentialResponse = (response) => {
+  try {
+    if (!response) return
+    const { access_token, expires_in } = response
+    if (access_token) {
+      setAuth(access_token, expires_in)
+      console.log('User is now logged in')
+    }
+  } catch (err) {
+    console.error('Failed to login', err)
   }
-  $googleAuth
-    .signIn()
-    .then((response) => {
-      user.value = response
-      isLoggedIn.value = true
-    })
-    .catch(() => {
-      alert('Login failed')
-    })
 }
 
 function handleLogout() {
-  if ($googleAuth) $googleAuth.signOut()
-  user.value = null
-  isLoggedIn.value = false
+  try {
+    const confirmed = confirm('Are you sure you want to sign out?')
+    if (!confirmed) return
+    clearAuth()
+    console.log('User logged out successfully')
+  } catch (err) {
+    console.error('Failed to log out', err)
+  }
 }
 </script>
+

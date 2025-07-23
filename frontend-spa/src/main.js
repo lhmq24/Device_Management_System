@@ -4,16 +4,19 @@ import router from './router'
 
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
-import GoogleLoginPlugin from 'vue3-google-login'
+import vue3GoogleLogin from 'vue3-google-login'
+
 
 const app = createApp(App)
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 app
   .use(router)
   .use(VueQueryPlugin)
-  .use(GoogleLoginPlugin, {
-    clientId: '995921739137-qg3o1in691pjqn3i1qf9duutfts5m9lm.apps.googleusercontent.com',
+  .use(vue3GoogleLogin, {
+    clientId: CLIENT_ID,
   })
   .mount('#app')

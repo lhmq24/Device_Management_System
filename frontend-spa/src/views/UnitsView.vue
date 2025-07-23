@@ -26,21 +26,32 @@
 </template>
 
 <script setup>
-import { onMounted} from 'vue'
+import { onMounted, watch } from 'vue'
 import { useUnitState } from '../composables/useUnitState.js'
 import { getUnits, createUnit, updateUnit, deleteUnit } from '../services/unitService.js'
+import { useAuth } from '../composables/useAuth.js'
 
 import UnitForm from '../components/UnitForm.vue'
 import UnitTable from '../components/UnitTable.vue'
 import SearchBar from '../components/SearchBar.vue'
 
-const {
-  units,
-  selectedUnit,
-  isEditing,
-  searchText,
-  filteredUnits
-} = useUnitState();
+const { units, selectedUnit, isEditing, searchText, filteredUnits } = useUnitState()
+
+const { isLoggedIn } = useAuth()
+
+watch(isLoggedIn, (loggedIn) => {
+  if (loggedIn) {
+    loadUnits()
+  } else {
+    units.value = [] // Clear data after logout
+  }
+})
+
+onMounted(() => {
+  if (isLoggedIn.value) {
+    loadUnits()
+  }
+})
 
 function filterUnits(text) {
   searchText.value = text

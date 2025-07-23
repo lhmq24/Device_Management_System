@@ -21,30 +21,36 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 
-import {
-  getReports,
-  createReport,
-  updateReport,
-  deleteReport
-} from '../services/reportService.js'
+import { getReports, createReport, updateReport, deleteReport } from '../services/reportService.js'
 
 import { getDevices } from '../services/deviceService.js'
 import { getMaintainers } from '../services/maintainerService.js'
+import { useAuth } from '../composables/useAuth.js'
 
 import ReportForm from '../components/ReportForm.vue'
 import ReportTable from '../components/ReportTable.vue'
 
 import { useReportState } from '../composables/useReportState.js'
 
-const {
-  reports,
-  devices,
-  maintainers,
-  selected,
-  isEditing
-} = useReportState()
+const { reports, devices, maintainers, selected, isEditing } = useReportState()
+
+const { isLoggedIn } = useAuth()
+
+watch(isLoggedIn, (loggedIn) => {
+  if (loggedIn) {
+    load()
+  } else {
+    reports.value = [] // Clear data after logout
+  }
+})
+
+onMounted(() => {
+  if (isLoggedIn.value) {
+    load()
+  }
+})
 
 async function load() {
   const resReports = await getReports()

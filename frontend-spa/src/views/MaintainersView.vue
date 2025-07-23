@@ -19,20 +19,35 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import {
   getMaintainers,
   createMaintainer,
   updateMaintainer,
   deleteMaintainer,
 } from '../services/maintainerService.js'
-import { useMaintainerState } from '../composables/useMaintainerState.js';
-const { maintainers, selected, isEditing } = useMaintainerState();
+import { useMaintainerState } from '../composables/useMaintainerState.js'
+const { maintainers, selected, isEditing } = useMaintainerState()
+import { useAuth } from '../composables/useAuth.js'
 
 import MaintainerForm from '../components/MaintainerForm.vue'
 import MaintainerTable from '../components/MaintainerTable.vue'
 
+const { isLoggedIn } = useAuth()
 
+watch(isLoggedIn, (loggedIn) => {
+  if (loggedIn) {
+    load()
+  } else {
+    maintainers.value = [] // Clear data after logout
+  }
+})
+
+onMounted(() => {
+  if (isLoggedIn.value) {
+    load()
+  }
+})
 
 async function load() {
   const response = await getMaintainers()

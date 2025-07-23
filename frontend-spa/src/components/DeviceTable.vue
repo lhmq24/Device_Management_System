@@ -19,7 +19,7 @@
           <td>{{ device.unit_name || device.unit_id }}</td>
           <td>
             <img
-              :src="`http://localhost:3000/images/${device.device_img}`"
+              :src="`http://localhost:3000${device.device_img}`"
               alt="device image"
               class="img-thumbnail"
               style="width: 50px; height: 50px; object-fit: cover"

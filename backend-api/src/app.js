@@ -8,6 +8,8 @@ const unitsRouter = require("./routes/unit.router");
 const maintainersRouter = require("./routes/maintainer.router");
 const maintenanceReportsRouter = require("./routes/maintenance_report.router");
 
+const googleAuth = require("./middlewares/googleAuth");
+
 const { 
   resourceNotFound,
   handleError,
@@ -42,6 +44,9 @@ app.get("/", (req, res) => {
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/public", express.static("public"));
+
+// Apply Auth midleware to all API routes
+app.use('/api', googleAuth)
 
 devicesRouter.setup(app);
 unitsRouter.setup(app);

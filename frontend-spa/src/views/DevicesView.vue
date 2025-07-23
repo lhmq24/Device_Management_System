@@ -5,7 +5,7 @@
         <div
           class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4"
         >
-          <h2 class="h4 mb-3 mb-md-0">Device List</h2>
+          <h2 class="card-title mb-4">Devices</h2>
           <div>
             <button
               class="btn btn-outline-primary d-inline-flex align-items-center"
@@ -56,17 +56,31 @@
 </template>
 
 <script setup>
-import {  onMounted } from 'vue'
+import {  onMounted, watch } from 'vue'
 import { getDevices, createDevice, updateDevice, deleteDevice } from '../services/deviceService'
 import { getUnits } from '../services/unitService'
+import { useAuth } from '../composables/useAuth'
 
 import DeviceForm from '../components/DeviceForm.vue'
 import DeviceTable from '../components/DeviceTable.vue'
 import { useDeviceState } from '../composables/useDeviceState'  
 
 const { devices, units, selectedDevice, isEditing, showForm, searchTerm, filteredDevices } = useDeviceState()
-onMounted(async () => {
-  await load()
+
+const { isLoggedIn } = useAuth()
+
+watch(isLoggedIn, (loggedIn) => {
+  if (loggedIn) {
+    load()
+  } else {
+    devices.value = [] // Clear data after logout
+  }
+})
+
+onMounted(() => {
+  if (isLoggedIn.value) {
+    load()
+  }
 })
 
 async function load() {
