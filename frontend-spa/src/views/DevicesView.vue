@@ -35,8 +35,8 @@
             <DeviceForm
               :device="selectedDevice"
               :units="units"
-              @create="handleCreate"
-              @update="handleUpdate"
+              :isEdit="isEditing"
+              @submit="handleSubmit"
             />
           </div>
         </div>
@@ -129,6 +129,13 @@ function toggleForm() {
     handleCancel()
   } else {
     showForm.value = true
+  }
+}
+function handleSubmit(data) {
+  if (isEditing.value) {
+    handleUpdate(data)
+  } else {
+    handleCreate(data)
   }
 }
 </script>
