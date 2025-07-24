@@ -4,7 +4,7 @@
       <label for="device" class="form-label">Device</label>
       <select id="device" v-model="form.device_id" required class="form-select">
         <option disabled value="">Select Device</option>
-        <option v-for="d in devices" :key="d.id" :value="d.id">{{ d.name }}</option>
+        <option v-for="d in devices" :key="d.id" :value="d.id">{{ d.device_name }}</option>
       </select>
     </div>
 

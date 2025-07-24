@@ -57,9 +57,9 @@ async function load() {
   const resDevices = await getDevices()
   const resMaintainers = await getMaintainers()
 
-  reports.value = resReports.reports || resReports || []
-  devices.value = resDevices.devices || resDevices || []
-  maintainers.value = resMaintainers.maintainers || resMaintainers || []
+  reports.value = resReports.reports || resReports.data?.reports || []
+  devices.value = resDevices.devices || resDevices.data?.devices || []
+  maintainers.value = resMaintainers.maintainers || resMaintainers.data?.maintainers || []
 }
 
 async function handleCreate(data) {
