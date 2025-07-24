@@ -11,7 +11,7 @@ export async function getUnits() {
 }
 
 export async function getUnit(id) {
-const token = localStorage.getItem('token') || ''
+  const token = localStorage.getItem('token') || ''
   const res = await fetch(`${API_URL}/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
@@ -20,11 +20,15 @@ const token = localStorage.getItem('token') || ''
 
 export async function createUnit(data) {
   const token = localStorage.getItem('token') || ''
-  return await fetch(API_URL, {
+  const formData = new FormData()
+  formData.append('unit_name', data.unit_name)
+  formData.append('unit_location', data.unit_location)
+  const res = await fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${token}` },
-    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
   })
+  return await res.json()
 }
 
 export async function deleteUnit(id) {
@@ -39,7 +43,7 @@ export async function updateUnit(id, data) {
   const token = localStorage.getItem('token') || ''
   return await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(data),
   })
 }

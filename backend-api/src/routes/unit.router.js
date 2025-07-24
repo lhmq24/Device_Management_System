@@ -4,7 +4,10 @@ const { z } = require("zod");
 const unitsController = require("../controllers/unit.controller");
 const { methodNotAllowed } = require("../controllers/errors.controller");
 const { validateRequest } = require("../middlewares/validator.middlewares");
-const { unitSchema, partialUnitSchema } = require("../schemas/unit.schema");
+const {
+  createUnitSchema,
+  partialUnitSchema,
+} = require("../schemas/unit.schema");
 const multer = require("multer");
 
 const upload = multer();
@@ -32,7 +35,7 @@ module.exports.setup = (app) => {
     "/units",
     upload.none(),
     validateRequest(
-      unitSchema
+      createUnitSchema
         .omit({
           unit_id: true,
         })
@@ -68,14 +71,17 @@ module.exports.setup = (app) => {
     "/units/:unitId",
     upload.none(),
     validateRequest(
-      z.object({
-        unitId: z.coerce.number().int().positive()
-      }).merge(
-      partialUnitSchema
-      .omit({
-        unit_id: true})
-      .strict()
-      )
+      z
+        .object({
+          unitId: z.coerce.number().int().positive(),
+        })
+        .merge(
+          partialUnitSchema
+            .omit({
+              unit_id: true,
+            })
+            .strict()
+        )
     ),
     unitsController.updateUnit
   );
@@ -112,4 +118,4 @@ module.exports.setup = (app) => {
     }
     next();
   });
-}
+};

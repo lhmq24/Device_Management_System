@@ -11,11 +11,7 @@
 
         <!-- Unit form -->
         <div class="mb-4">
-          <UnitForm
-            :unit="selectedUnit"
-            :isEdit="isEditing"
-            @submit="isEditing ? handleUpdate : handleCreate"
-          />
+          <UnitForm :unit="selectedUnit" :isEdit="isEditing" @submit="handleSubmit" />
         </div>
 
         <!-- Unit table -->
@@ -64,10 +60,15 @@ async function loadUnits() {
 
 async function handleCreate(data) {
   try {
-    await createUnit(data)
-    await loadUnits()
+    const result = await createUnit(data)
+    if (result.status === 'success') {
+      await loadUnits()
+    } else {
+      alert(result.message || 'Failed to create unit')
+    }
   } catch (err) {
     console.error('Create failed:', err.message)
+    alert('Create failed: ' + err.message)
   }
 }
 
@@ -87,6 +88,14 @@ async function handleDelete(id) {
   if (confirm('Are you sure?')) {
     await deleteUnit(id)
     await loadUnits()
+  }
+}
+
+function handleSubmit(data) {
+  if (isEditing.value) {
+    handleUpdate(data)
+  } else {
+    handleCreate(data)
   }
 }
 
