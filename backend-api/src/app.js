@@ -10,18 +10,17 @@ const maintenanceReportsRouter = require("./routes/maintenance_report.router");
 
 const googleAuth = require("./middlewares/googleAuth");
 
-const { 
+const {
   resourceNotFound,
   handleError,
 } = require("./controllers/errors.controller");
-
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("../docs/openapiSpec.json");
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  limit: 20,
+  limit: 1000,
   message: jsend.fail({
     message: "Too many requests, please try again later.",
   }),
@@ -37,16 +36,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  return res.json(jsend.success({
-    message: "API is running",
-  }));
+  return res.json(
+    jsend.success({
+      message: "API is running",
+    })
+  );
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/public", express.static("public"));
 
 // Apply Auth midleware to all API routes
-app.use('/api', googleAuth)
+app.use("/api", googleAuth);
 
 devicesRouter.setup(app);
 unitsRouter.setup(app);
