@@ -56,16 +56,17 @@
 </template>
 
 <script setup>
-import {  onMounted, watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import { getDevices, createDevice, updateDevice, deleteDevice } from '../services/deviceService'
 import { getUnits } from '../services/unitService'
 import { useAuth } from '../composables/useAuth'
 
 import DeviceForm from '../components/DeviceForm.vue'
 import DeviceTable from '../components/DeviceTable.vue'
-import { useDeviceState } from '../composables/useDeviceState'  
+import { useDeviceState } from '../composables/useDeviceState'
 
-const { devices, units, selectedDevice, isEditing, showForm, searchTerm, filteredDevices } = useDeviceState()
+const { devices, units, selectedDevice, isEditing, showForm, searchTerm, filteredDevices } =
+  useDeviceState()
 
 const { isLoggedIn } = useAuth()
 
@@ -85,7 +86,9 @@ onMounted(() => {
 
 async function load() {
   devices.value = await getDevices()
-  units.value = await getUnits()
+
+  const unitResponse = await getUnits()
+  units.value = unitResponse.units || unitResponse.data?.units || []
 }
 
 async function handleCreate(data) {
