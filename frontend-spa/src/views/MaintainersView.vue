@@ -5,11 +5,7 @@
         <h2 class="card-title mb-4">Maintainers</h2>
 
         <div class="mb-4">
-          <MaintainerForm
-            :maintainer="selected"
-            :isEdit="isEditing"
-            @submit="isEditing ? handleUpdate : handleCreate"
-          />
+          <MaintainerForm :maintainer="selected" :isEdit="isEditing" @submit="handleSubmit" />
         </div>
 
         <MaintainerTable :maintainers="maintainers" @edit="startEdit" @delete="handleDelete" />
@@ -76,6 +72,14 @@ async function handleDelete(id) {
   if (confirm('Delete this maintainer?')) {
     await deleteMaintainer(id)
     await load()
+  }
+}
+
+function handleSubmit(data) {
+  if (isEditing.value) {
+    handleUpdate(data)
+  } else {
+    handleCreate(data)
   }
 }
 
