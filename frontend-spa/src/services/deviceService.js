@@ -2,15 +2,6 @@ import axios from 'axios'
 
 const API = 'http://localhost:3000/api/devices'
 
-// export async function getDevices() {
-//   const token = localStorage.getItem('token') || ''
-//   const response = await axios.get(API, {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   })
-//   return response.data.data.devices
-// }
 export async function getDevices() {
   const token = localStorage.getItem('token') || ''
   const response = await axios.get(API, {
