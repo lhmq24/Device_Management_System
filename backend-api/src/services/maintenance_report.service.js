@@ -1,5 +1,5 @@
 const knex = require("../database/knex");
-const Paginator = require("./Paginator");
+// const Paginator = require("./Paginator");
 
 /**
  * @import {
@@ -31,15 +31,15 @@ async function createReport(payload) {
 
 async function getManyReports(query) {
   const {
-    page = 1,
-    limit = 10,
+    // page = 1,
+    // limit = 10,
     device_id,
     m_id,
     sort_by = "mr_date",
     order = "desc",
   } = query;
 
-  const paginator = new Paginator(page, limit);
+  // const paginator = new Paginator(page, limit);
 
   const results = await reportRepository()
     .where((builder) => {
@@ -48,14 +48,14 @@ async function getManyReports(query) {
     })
     .select(knex.raw("COUNT(*) OVER() AS record_count"), "*")
     .orderBy(sort_by, order)
-    .limit(paginator.limit)
-    .offset(paginator.offset);
+    // .limit(paginator.limit)
+    // .offset(paginator.offset);
 
-  const totalRecords = results[0]?.record_count ?? 0;
+  // const totalRecords = results[0]?.record_count ?? 0;
   const reports = results.map((r) => ({ ...r, record_count: undefined }));
 
   return {
-    metadata: paginator.getMetadata(totalRecords),
+    // metadata: paginator.getMetadata(totalRecords),
     reports,
   };
 }

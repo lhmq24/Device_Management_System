@@ -1,6 +1,6 @@
-const { unlink } = require("node:fs");
+const { unlink } = require("node:fs/promises");
 const knex = require("../database/knex");
-const Paginator = require("./Paginator");
+// const Paginator = require("./Paginator");
 
 /**
  * @import { z } from 'zod';
@@ -58,7 +58,7 @@ async function getManyDevices(query) {
     throw new Error("Page and limit must be integers.");
   }
 
-  const paginator = new Paginator(page, limit);
+  // const paginator = new Paginator(page, limit);
 
   const results = await deviceRepository()
     .select(
@@ -71,10 +71,10 @@ async function getManyDevices(query) {
       "device_img"
     )
     .orderBy("device_id", "asc")
-    .limit(paginator.limit)
-    .offset(paginator.offset);
+    // .limit(paginator.limit)
+    // .offset(paginator.offset);
 
-  const totalRecords = results[0]?.record_count ?? 0;
+  // const totalRecords = results[0]?.record_count ?? 0;
 
   const devices = results.map((result) => {
     result.record_count = undefined;
@@ -82,7 +82,7 @@ async function getManyDevices(query) {
   });
 
   return {
-    metadata: paginator.getMetadata(totalRecords),
+    // metadata: paginator.getMetadata(totalRecords),
     devices,
   };
 }

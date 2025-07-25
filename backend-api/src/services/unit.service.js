@@ -1,5 +1,5 @@
 const knex = require("../database/knex");
-const Paginator = require("./Paginator");
+// const Paginator = require("./Paginator");
 
 /**
  * @import { z } from 'zod';
@@ -29,13 +29,13 @@ async function createUnit(payload) {
 
 async function getManyUnits(query) {
   const {
-    page = 1,
-    limit = 10,
+    // page = 1,
+    // limit = 10,
     search,
     sort_by = "unit_name",
     order = "asc",
   } = query;
-  const paginator = new Paginator(page, limit);
+  // const paginator = new Paginator(page, limit);
 
   const results = await unitRepository()
     .where((builder) => {
@@ -47,14 +47,14 @@ async function getManyUnits(query) {
     })
     .select(knex.raw("COUNT(*) OVER() AS record_count"), "*")
     .orderBy(sort_by, order)
-    .limit(paginator.limit)
-    .offset(paginator.offset);
+    // .limit(paginator.limit)
+    // .offset(paginator.offset);
 
-  const totalRecords = results[0]?.record_count ?? 0;
+  // const totalRecords = results[0]?.record_count ?? 0;
   const units = results.map((r) => ({ ...r, record_count: undefined }));
 
   return {
-    metadata: paginator.getMetadata(totalRecords),
+    // metadata: paginator.getMetadata(totalRecords),
     units,
   };
 }

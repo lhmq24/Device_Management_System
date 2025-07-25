@@ -42,7 +42,7 @@
         </div>
 
         <DeviceTable
-          :devices="filteredDevices"
+          :devices="paginatedDevices"
           @edit="startEdit"
           @delete="handleDelete"
           edit-btn-class="btn btn-sm btn-outline-warning me-2"
@@ -50,6 +50,29 @@
           edit-btn-text="Edit"
           delete-btn-text="Remove"
         />
+
+        <!-- Pagination controls -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div>
+            Showing
+            <strong>{{ (page - 1) * PAGE_SIZE + 1 }}</strong> -
+            <strong>{{ Math.min(page * PAGE_SIZE, totalRecords) }}</strong>
+            of <strong>{{ totalRecords }}</strong> devices
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary" @click="page--" :disabled="page <= 1">
+              Prev
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              @click="page++"
+              :disabled="page >= totalPages"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -65,8 +88,19 @@ import DeviceForm from '../components/DeviceForm.vue'
 import DeviceTable from '../components/DeviceTable.vue'
 import { useDeviceState } from '../composables/useDeviceState'
 
-const { devices, units, selectedDevice, isEditing, showForm, searchTerm, filteredDevices } =
-  useDeviceState()
+const {
+  devices,
+  units,
+  selectedDevice,
+  isEditing,
+  showForm,
+  searchTerm,
+  paginatedDevices,
+  page,
+  totalPages,
+  totalRecords,
+  PAGE_SIZE,
+} = useDeviceState()
 
 const { isLoggedIn } = useAuth()
 
@@ -78,6 +112,11 @@ watch(isLoggedIn, (loggedIn) => {
   }
 })
 
+watch(searchTerm, () => {
+  page.value = 1 // Reset to first page on search term change
+})
+
+
 onMounted(() => {
   if (isLoggedIn.value) {
     load()
@@ -86,7 +125,6 @@ onMounted(() => {
 
 async function load() {
   devices.value = await getDevices()
-
   const unitResponse = await getUnits()
   units.value = unitResponse.units || unitResponse.data?.units || []
 }
@@ -98,7 +136,7 @@ async function handleCreate(data) {
 }
 
 async function handleUpdate(data) {
-  await updateDevice(selectedDevice.value.id, data)
+  await updateDevice(selectedDevice.value.device_id, data)
   selectedDevice.value = null
   isEditing.value = false
   showForm.value = false
@@ -106,7 +144,7 @@ async function handleUpdate(data) {
 }
 
 function startEdit(device) {
-  selectedDevice.value = device
+  selectedDevice.value = { ...device }
   isEditing.value = true
   showForm.value = true
 }
@@ -119,7 +157,7 @@ async function handleDelete(id) {
 }
 
 function handleCancel() {
-  selectedDevice.value = null
+  selectedDevice.value = {}
   isEditing.value = false
   showForm.value = false
 }

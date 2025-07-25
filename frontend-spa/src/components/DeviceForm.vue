@@ -5,7 +5,7 @@
       <label for="unitSelect" class="form-label">Unit</label>
       <select v-model="form.unit_id" id="unitSelect" class="form-select" required>
         <option disabled value="">Select Unit</option>
-        <option v-for="unit in units" :key="unit.id" :value="unit.id">
+        <option v-for="unit in units" :key="unit.unit_id" :value="Number(unit.unit_id)">
           {{ unit.unit_name }}
         </option>
       </select>
@@ -15,7 +15,7 @@
     <div class="col-md-6">
       <label for="deviceName" class="form-label">Device Name</label>
       <input
-        v-model="form.name"
+        v-model="form.device_name"
         id="deviceName"
         type="text"
         class="form-control"
@@ -27,17 +27,25 @@
     <!-- Buy Date -->
     <div class="col-md-6">
       <label for="buyDate" class="form-label">Buy Date</label>
-      <input v-model="form.buy_date" id="buyDate" type="date" class="form-control" required />
+      <input
+        v-model="form.device_buy_date"
+        id="buyDate"
+        type="date"
+        class="form-control"
+        required
+      />
     </div>
 
     <!-- Maintenance Interval -->
     <div class="col-md-6">
-      <label for="intervalDate" class="form-label">Next Maintenance</label>
+      <label for="intervalDate" class="form-label">Next Maintenance (days)</label>
       <input
-        v-model="form.maintenance_interval_date"
+        v-model.number="form.device_maintenance_interval"
         id="intervalDate"
-        type="date"
+        type="number"
         class="form-control"
+        placeholder="Enter interval in days"
+        min="1"
         required
       />
     </div>
@@ -50,7 +58,7 @@
         id="deviceImage"
         type="text"
         class="form-control"
-        placeholder="http://example.com/image.jpg"
+        placeholder="/public/images/blank-profile-picture.png"
       />
     </div>
 
@@ -76,25 +84,25 @@ const props = defineProps({
 })
 
 const form = ref({
-  unit_id: '',
-  name: '',
-  buy_date: '',
-  maintenance_interval_date: '',
-  device_img: '',
+  unit_id: 1,
+  device_name: '',
+  device_buy_date: '',
+  device_maintenance_interval: 30,
+  device_img: '/images/blank-profile-picture.png',
 })
 
 watch(
   () => props.device,
   (val) => {
-    form.value = val
-      ? { ...val }
-      : {
-          unit_id: '',
-          name: '',
-          buy_date: '',
-          maintenance_interval_date: '',
-          device_img: '',
-        }
+    const safeDevice = val || {}
+
+    form.value = {
+      unit_id: safeDevice.unit_id ?? 1,
+      device_name: safeDevice.device_name ?? '',
+      device_buy_date: safeDevice.device_buy_date ?? '',
+      device_maintenance_interval: safeDevice.device_maintenance_interval ?? 30,
+      device_img: safeDevice.device_img ?? '/images/blank-profile-picture.png',
+    }
   },
   { immediate: true },
 )

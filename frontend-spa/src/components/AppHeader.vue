@@ -63,15 +63,12 @@ const { isLoggedIn, setAuth, clearAuth } = useAuth()
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
-console.log("isLoggedIn when init AppHeader:", isLoggedIn.value)
-
 const handleCredentialResponse = (response) => {
   try {
     if (!response) return
     const { access_token, expires_in } = response
     if (access_token) {
       setAuth(access_token, expires_in)
-      console.log('User is now logged in')
     }
   } catch (err) {
     console.error('Failed to login', err)
@@ -83,7 +80,6 @@ function handleLogout() {
     const confirmed = confirm('Are you sure you want to sign out?')
     if (!confirmed) return
     clearAuth()
-    console.log('User logged out successfully')
   } catch (err) {
     console.error('Failed to log out', err)
   }

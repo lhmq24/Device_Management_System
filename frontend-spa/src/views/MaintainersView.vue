@@ -8,7 +8,33 @@
           <MaintainerForm :maintainer="selected" :isEdit="isEditing" @submit="handleSubmit" />
         </div>
 
-        <MaintainerTable :maintainers="maintainers" @edit="startEdit" @delete="handleDelete" />
+        <MaintainerTable
+          :maintainers="paginatedMaintainers"
+          @edit="startEdit"
+          @delete="handleDelete"
+        />
+        <!-- Pagination controls -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div>
+            Showing
+            <strong>{{ (page - 1) * PAGE_SIZE + 1 }}</strong> -
+            <strong>{{ Math.min(page * PAGE_SIZE, totalRecords) }}</strong>
+            of <strong>{{ totalRecords }}</strong> maintainers
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary" @click="page--" :disabled="page <= 1">
+              Prev
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              @click="page++"
+              :disabled="page >= totalPages"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -23,7 +49,17 @@ import {
   deleteMaintainer,
 } from '../services/maintainerService.js'
 import { useMaintainerState } from '../composables/useMaintainerState.js'
-const { maintainers, selected, isEditing } = useMaintainerState()
+const {
+  maintainers,
+  selected,
+  isEditing,
+  page,
+  PAGE_SIZE,
+  totalRecords,
+  totalPages,
+  paginatedMaintainers,
+} = useMaintainerState()
+
 import { useAuth } from '../composables/useAuth.js'
 
 import MaintainerForm from '../components/MaintainerForm.vue'
@@ -53,6 +89,7 @@ async function load() {
 async function handleCreate(data) {
   const result = await createMaintainer(data)
   console.log('Create maintainer result:', result)
+  page.value = 1
   await load()
 }
 
@@ -65,12 +102,14 @@ async function handleUpdate(data) {
   await updateMaintainer(selected.value.id, data)
   selected.value = null
   isEditing.value = false
+  page.value = 1
   await load()
 }
 
 async function handleDelete(id) {
   if (confirm('Delete this maintainer?')) {
     await deleteMaintainer(id)
+    page.value = 1
     await load()
   }
 }

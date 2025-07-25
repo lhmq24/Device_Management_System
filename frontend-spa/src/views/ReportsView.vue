@@ -14,7 +14,29 @@
           />
         </div>
 
-        <ReportTable :reports="reports" @edit="startEdit" @delete="handleDelete" />
+        <ReportTable :reports="paginatedReports" @edit="startEdit" @delete="handleDelete" />
+        <!-- Pagination controls -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div>
+            Showing
+            <strong>{{ (page - 1) * PAGE_SIZE + 1 }}</strong> -
+            <strong>{{ Math.min(page * PAGE_SIZE, totalRecords) }}</strong>
+            of <strong>{{ totalRecords }}</strong> reports
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary" @click="page--" :disabled="page <= 1">
+              Prev
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              @click="page++"
+              :disabled="page >= totalPages"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -34,7 +56,18 @@ import ReportTable from '../components/ReportTable.vue'
 
 import { useReportState } from '../composables/useReportState.js'
 
-const { reports, devices, maintainers, selected, isEditing } = useReportState()
+const {
+  reports,
+  devices,
+  maintainers,
+  selected,
+  isEditing,
+  page,
+  PAGE_SIZE,
+  totalRecords,
+  totalPages,
+  paginatedReports,
+} = useReportState()
 
 const { isLoggedIn } = useAuth()
 
@@ -64,6 +97,7 @@ async function load() {
 
 async function handleCreate(data) {
   await createReport(data)
+  page.value = 1
   await load()
 }
 
@@ -76,12 +110,14 @@ async function handleUpdate(data) {
   await updateReport(data)
   selected.value = null
   isEditing.value = false
+  page.value = 1
   await load()
 }
 
 async function handleDelete(data) {
   if (confirm('Delete this report?')) {
     await deleteReport(data)
+    page.value = 1
     await load()
   }
 }

@@ -15,7 +15,30 @@
         </div>
 
         <!-- Unit table -->
-        <UnitTable :units="filteredUnits" @edit="startEdit" @delete="handleDelete" />
+        <UnitTable :units="paginatedUnits" @edit="startEdit" @delete="handleDelete" />
+        
+        <!-- Pagination controls -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div>
+            Showing
+            <strong>{{ (page - 1) * PAGE_SIZE + 1 }}</strong> -
+            <strong>{{ Math.min(page * PAGE_SIZE, totalRecords) }}</strong>
+            of <strong>{{ totalRecords }}</strong> units
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary" @click="page--" :disabled="page <= 1">
+              Prev
+            </button>
+            <button
+              class="btn btn-outline-secondary"
+              @click="page++"
+              :disabled="page >= totalPages"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -31,7 +54,17 @@ import UnitForm from '../components/UnitForm.vue'
 import UnitTable from '../components/UnitTable.vue'
 import SearchBar from '../components/SearchBar.vue'
 
-const { units, selectedUnit, isEditing, searchText, filteredUnits } = useUnitState()
+const {
+  PAGE_SIZE,
+  totalRecords,
+  totalPages,
+  page,
+  units,
+  selectedUnit,
+  isEditing,
+  searchText,
+  paginatedUnits,
+} = useUnitState()
 
 const { isLoggedIn } = useAuth()
 
@@ -51,6 +84,7 @@ onMounted(() => {
 
 function filterUnits(text) {
   searchText.value = text
+  page.value = 1 // reset to first page after search
 }
 
 async function loadUnits() {
