@@ -69,8 +69,14 @@ const {
 const { isLoggedIn } = useAuth()
 const { unitsQuery, createUnitMutation, updateUnitMutation, deleteUnitMutation } = useUnitsQuery()
 
+onMounted(() => {
+  if (isLoggedIn.value) {
+    unitsQuery.refetch()
+  }
+})
+
 watch(
-  () => unitsQuery.data.value, // unwrap the ref here
+  () => unitsQuery.data.value, 
   (data) => {
     if (isLoggedIn.value && Array.isArray(data)) {
       units.value = data
@@ -141,11 +147,5 @@ function startEdit(unit) {
   selectedUnit.value = unit
   isEditing.value = true
 }
-
-onMounted(() => {
-  if (isLoggedIn.value) {
-    unitsQuery.refetch()
-  }
-})
 </script>
 

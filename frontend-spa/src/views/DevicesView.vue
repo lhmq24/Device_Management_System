@@ -79,15 +79,16 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
-import { getDevices, createDevice, updateDevice, deleteDevice } from '../services/deviceService'
-import { getUnits } from '../services/unitService'
+import { watch, onMounted } from 'vue'
 import { useAuth } from '../composables/useAuth'
+import { useDeviceState } from '../composables/useDeviceState'
+import { useDevicesQuery } from '../composables/useDevicesQuery'
+import { useUnitsQuery } from '../composables/useUnitsQuery'
 
 import DeviceForm from '../components/DeviceForm.vue'
 import DeviceTable from '../components/DeviceTable.vue'
-import { useDeviceState } from '../composables/useDeviceState'
 
+const { unitsQuery } = useUnitsQuery()
 const {
   devices,
   units,
@@ -103,46 +104,68 @@ const {
 } = useDeviceState()
 
 const { isLoggedIn } = useAuth()
+const {
+  devicesQuery,
+  createDeviceMutation,
+  updateDeviceMutation,
+  deleteDeviceMutation,
+} = useDevicesQuery()
+
+onMounted(() => {
+  if (isLoggedIn.value) {
+    devicesQuery.refetch()
+    unitsQuery.refetch()
+  }
+})
+
+watch(
+  [() => unitsQuery.data.value, () => devicesQuery.data.value],
+  ([unitsData, devicesData]) => {
+    units.value = unitsData || []
+
+    if (isLoggedIn.value && Array.isArray(devicesData)) {
+      devices.value = devicesData
+    } else {
+      devices.value = []
+    }
+  },
+  { immediate: true }
+)
 
 watch(isLoggedIn, (loggedIn) => {
-  if (loggedIn) {
-    load()
-  } else {
+  if (!loggedIn) {
     devices.value = [] // Clear data after logout
   }
 })
 
-watch(searchTerm, () => {
-  page.value = 1 // Reset to first page on search term change
-})
-
-
-onMounted(() => {
-  if (isLoggedIn.value) {
-    load()
-  }
-})
-
-async function load() {
-  devices.value = await getDevices()
-  const unitResponse = await getUnits()
-  units.value = unitResponse.units || unitResponse.data?.units || []
+function toggleForm() {
+  if (showForm.value || isEditing.value) handleCancel()
+  else showForm.value = true
 }
 
-async function handleCreate(formData) {
-  await createDevice(formData)
-  showForm.value = false
-  await load()
-}
-
-
-async function handleUpdate(data) {
-  await updateDevice(selectedDevice.value.device_id, data)
+function handleCancel() {
   selectedDevice.value = null
   isEditing.value = false
   showForm.value = false
-  await load()
 }
+
+function handleSubmit(data) {
+  if (isEditing.value) {
+    updateDeviceMutation.mutate(
+      { id: selectedDevice.value.device_id, data },
+    )
+  } else {
+    createDeviceMutation.mutate(data, {
+      onSuccess: () => {
+        // Keep form visible, just clear values
+        selectedDevice.value = {}
+        isEditing.value = false
+        // Optional: you can also reset the file/image if needed
+      },
+    })
+  }
+}
+
 
 function startEdit(device) {
   selectedDevice.value = { ...device }
@@ -150,31 +173,10 @@ function startEdit(device) {
   showForm.value = true
 }
 
-async function handleDelete(id) {
+function handleDelete(id) {
   if (confirm('Are you sure?')) {
-    await deleteDevice(id)
-    await load()
-  }
-}
-
-function handleCancel() {
-  selectedDevice.value = {}
-  isEditing.value = false
-  showForm.value = false
-}
-
-function toggleForm() {
-  if (showForm.value || isEditing.value) {
-    handleCancel()
-  } else {
-    showForm.value = true
-  }
-}
-function handleSubmit(data) {
-  if (isEditing.value) {
-    handleUpdate(data)
-  } else {
-    handleCreate(data)
+    deleteDeviceMutation.mutate(id)
   }
 }
 </script>
+

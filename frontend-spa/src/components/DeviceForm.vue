@@ -96,6 +96,21 @@ const form = ref({
   device_img: '/images/blank-profile-picture.png',
 })
 
+watch(() => props.device, (val) => {
+  if (!props.isEdit && !val) {
+    form.value = {
+      unit_id: 1,
+      device_name: '',
+      device_buy_date: '',
+      device_maintenance_interval: 30,
+      device_img: '/images/blank-profile-picture.png',
+    }
+    file.value = null
+    previewUrl.value = ''
+  }
+})
+
+
 watch(
   () => props.device,
   (val) => {
