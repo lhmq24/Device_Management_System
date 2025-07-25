@@ -22,7 +22,7 @@ function deviceImgUpload(req, res, next) {
         new ApiError(400, "An error occurred while uploading the device image")
       );
     } else if (err) {
-      console.error("Unknown upload error:", err); // ADD THIS
+      console.error("Unknown upload error:", err); 
       return next(
         new ApiError(
           500,

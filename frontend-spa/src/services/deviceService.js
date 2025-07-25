@@ -19,10 +19,13 @@ export async function createDevice(data) {
   const token = localStorage.getItem('token') || ''
   return await fetch(API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(data),
+    headers: {
+      Authorization: `Bearer ${token}`, 
+    },
+    body: data,
   })
 }
+
 
 export async function updateDevice(id, data) {
   const token = localStorage.getItem('token') || ''

@@ -50,17 +50,22 @@
       />
     </div>
 
-    <!-- Image URL -->
-    <div class="col-12">
-      <label for="deviceImage" class="form-label">Image URL</label>
-      <input
-        v-model="form.device_img"
-        id="deviceImage"
-        type="text"
-        class="form-control"
-        placeholder="/public/images/blank-profile-picture.png"
-      />
-    </div>
+    <!-- File Upload Field -->
+<div class="col-12">
+  <label for="deviceImage" class="form-label">Upload Image</label>
+  <input
+    id="deviceImage"
+    type="file"
+    class="form-control"
+    accept="image/*"
+    @change="handleFileChange"
+/>
+  <div v-if="previewUrl" class="mt-2">
+    <img :src="previewUrl" alt="Preview" class="img-thumbnail" style="max-height: 150px" />
+  </div>
+</div>
+
+
 
     <!-- Submit Button -->
     <div class="col-12 d-flex justify-content-end">
@@ -76,6 +81,8 @@
 import { ref, watch } from 'vue'
 
 const emit = defineEmits(['submit'])
+const previewUrl = ref('')
+const file = ref(null)
 
 const props = defineProps({
   device: Object,
@@ -107,7 +114,26 @@ watch(
   { immediate: true },
 )
 
+function handleFileChange(event) {
+  const selected = event.target.files[0]
+  file.value = selected
+  if (selected) {
+    previewUrl.value = URL.createObjectURL(selected)
+  } else {
+    previewUrl.value = ''
+  }
+}
+
 function onSubmit() {
-  emit('submit', { ...form.value })
+  const data = new FormData()
+  data.append('unit_id', form.value.unit_id)
+  data.append('device_name', form.value.device_name)
+  data.append('device_buy_date', form.value.device_buy_date)
+  data.append('device_maintenance_interval', form.value.device_maintenance_interval)
+  if (file.value) {
+    data.append('imgFile', file.value)
+  }
+
+  emit('submit', data)
 }
 </script>

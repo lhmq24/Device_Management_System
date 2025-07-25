@@ -129,11 +129,12 @@ async function load() {
   units.value = unitResponse.units || unitResponse.data?.units || []
 }
 
-async function handleCreate(data) {
-  await createDevice(data)
+async function handleCreate(formData) {
+  await createDevice(formData)
   showForm.value = false
   await load()
 }
+
 
 async function handleUpdate(data) {
   await updateDevice(selectedDevice.value.device_id, data)

@@ -2,7 +2,7 @@ const devicesService = require("../services/device.service");
 const ApiError = require("../api-error");
 const JSend = require("../jsend");
 
-const DEFAULT_IMAGE = "../../public/images/blank-profile-picture.png";
+const DEFAULT_IMAGE = "/public/images/blank-profile-picture.png";
 
 function getImagePath(file) {
   return file ? `/public/uploads/${file.filename}` : DEFAULT_IMAGE;
