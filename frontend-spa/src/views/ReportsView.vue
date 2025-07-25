@@ -91,7 +91,8 @@ async function load() {
   const resMaintainers = await getMaintainers()
 
   reports.value = resReports.reports || resReports.data?.reports || []
-  devices.value = resDevices.devices || resDevices.data?.devices || []
+  //devices.value = resDevices.devices || resDevices.data?.devices || []
+  devices.value = resDevices
   maintainers.value = resMaintainers.maintainers || resMaintainers.data?.maintainers || []
 }
 
