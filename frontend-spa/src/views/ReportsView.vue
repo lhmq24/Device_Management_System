@@ -7,16 +7,17 @@
         <div class="mb-4">
           <div class="mb-4">
             <ReportForm
-              :report="isEditing ? { ...selected } : null"
+              :key="isEditing ? 'edit' + selected?.device_id + selected?.m_id : 'create'"
+              :report="selected"
               :devices="devices"
               :maintainers="maintainers"
               :isEdit="isEditing"
-              @submit="isEditing ? handleUpdate : handleCreate"
+              @submit="handleSubmit"
             />
           </div>
         </div>
 
-        <ReportTable :reports="paginatedReports" @edit="startEdit" @delete="handleDelete" />
+        <ReportTable :reports="paginatedReports ?? []" @edit="startEdit" @delete="handleDelete" />
         <!-- Pagination controls -->
         <div class="d-flex justify-content-between align-items-center mt-3">
           <div>
@@ -97,11 +98,19 @@ async function load() {
   maintainers.value = resMaintainers.maintainers || resMaintainers.data?.maintainers || []
 }
 
+function handleSubmit(data) {
+  if (isEditing.value) {
+    handleUpdate(data)
+  } else {
+    handleCreate(data)
+  }
+}
+
 async function handleCreate(data) {
   console.log('Creating report with data:', data)
-  await createReport(data)
+  const newReport = await createReport(data)
+  reports.value.unshift(newReport) // add to top
   page.value = 1
-  await load()
 }
 
 function startEdit(report) {
@@ -110,11 +119,25 @@ function startEdit(report) {
 }
 
 async function handleUpdate(data) {
-  await updateReport(data)
+  console.log('Updating report with data in View:', data)
+  const formData = new FormData()
+  formData.append('device_id', data.device_id)
+  formData.append('m_id', data.m_id)
+  formData.append('mr_date', data.mr_date)
+  formData.append('mr_note', data.mr_desc)
+  const updated = await updateReport(formData)
+  const idx = reports.value.findIndex(
+    (r) =>
+      r.device_id === updated.device_id && r.m_id === updated.m_id && r.mr_date === updated.mr_date,
+  )
+
+  if (idx !== -1) {
+    reports.value[idx] = updated
+  }
+
   selected.value = null
   isEditing.value = false
   page.value = 1
-  await load()
 }
 
 async function handleDelete(data) {
@@ -124,6 +147,4 @@ async function handleDelete(data) {
     await load()
   }
 }
-
-onMounted(load)
 </script>

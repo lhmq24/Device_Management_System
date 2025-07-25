@@ -14,7 +14,7 @@
         <tr v-for="r in enrichedReports" :key="`${r.device_id}-${r.m_id}-${r.mr_date}`">
           <td>{{ r.device_name }}</td>
           <td>{{ r.m_name }}</td>
-          <td>{{ formatDate(r.mr_date) }}</td>
+          <td>{{ r.formatted_date }}</td>
           <td>{{ r.mr_note }}</td>
           <td class="text-center">
             <div class="d-flex justify-content-center gap-2">
@@ -33,79 +33,66 @@
 </template>
 
 <script setup>
-import { watch } from 'vue'
+import { computed, reactive} from 'vue'
 import { getDeviceById } from '../services/deviceService.js'
 import { getMaintainerById } from '../services/maintainerService.js'
-import { useReportState } from '../composables/useReportState.js'
 
-const { enrichedReports } = useReportState()
-
-const props = defineProps(['reports'])
+const props = defineProps({
+  reports: {
+    type: Array,
+    default: () => []
+  }
+})
 defineEmits(['edit', 'delete'])
 
+// === Cache maps to avoid duplicate requests ===
+const deviceCache = reactive(new Map())
+const maintainerCache = reactive(new Map())
 
+// === Format date ===
+function formatDate(dateStr) {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('th-TH', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
 
-const deviceCache = new Map()
-const maintainerCache = new Map()
+}
 
-// Enrich reports when props.reports changes
-watch(
-  () => props.reports,
-  async (newReports) => {
-    const enriched = await Promise.all(
-  newReports.map(async (report) => {
+// === Enrich reports as computed value ===
+const enrichedReports = computed(() =>
+  props.reports.map((report) => {
+    let device = deviceCache.get(report.device_id)
+    let maintainer = maintainerCache.get(report.m_id)
 
-    // === DEVICE ===
-    let device
-    if (deviceCache.has(report.device_id)) {
-      device = deviceCache.get(report.device_id)
-    } else {
-      try {
-        const res = await getDeviceById(report.device_id)
-        device = res?.data
-        deviceCache.set(report.device_id, device)
-      } catch (e) {
-        console.error(`  [ERROR] Failed to fetch device ${report.device_id}:`, e)
-      }
+    // Lazy fetch: trigger fetch if not cached yet
+    if (!device) {
+      getDeviceById(report.device_id)
+        .then((res) => {
+          deviceCache.set(report.device_id, res?.data)
+        })
+        .catch((err) => {
+          console.error(`Failed to fetch device ${report.device_id}`, err)
+        })
     }
 
-    // === MAINTAINER ===
-    let maintainer
-    if (maintainerCache.has(report.m_id)) {
-      maintainer = maintainerCache.get(report.m_id)
-    } else {
-      try {
-        const res = await getMaintainerById(report.m_id)
-        maintainer = res?.data
-        maintainerCache.set(report.m_id, maintainer)
-      } catch (e) {
-        console.error(`  [ERROR] Failed to fetch maintainer ${report.m_id}:`, e)
-      }
+    if (!maintainer) {
+      getMaintainerById(report.m_id)
+        .then((res) => {
+          maintainerCache.set(report.m_id, res?.data)
+        })
+        .catch((err) => {
+          console.error(`Failed to fetch maintainer ${report.m_id}`, err)
+        })
     }
 
-    const enrichedReport = {
+    return {
       ...report,
       device_name: device?.device_name || `Device #${report.device_id}`,
       m_name: maintainer?.m_name || `Maintainer #${report.m_id}`,
+      formatted_date: formatDate(report.mr_date)
     }
-
-    return enrichedReport
   })
 )
-
-
-    enrichedReports.value = enriched
-  },
-  { immediate: true }
-)
-
-function formatDate(dateStr) {
-  const date = new Date(dateStr)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0') // months are 0-based
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
 </script>
-

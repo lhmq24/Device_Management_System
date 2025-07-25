@@ -79,7 +79,7 @@ watch(
 )
 
 function onSubmit() {
-  console.log('Submitting report:', form.value)
+  console.log('Submitting report in form:', form.value)
   emit('submit', { ...form.value })
 }
 
@@ -88,5 +88,6 @@ function formatDate(dateStr) {
   const date = new Date(dateStr)
   return date.toISOString().split('T')[0] // yyyy-mm-dd
 }
+
 </script>
 

@@ -20,20 +20,20 @@ export async function createReport(data) {
   return res.json()
 }
 
-export async function updateReport(id, data) {
-  console.log('Updating report with data:', data)
+export async function updateReport(input) {
+  console.log('Updating report with data in service:', input)
   const token = localStorage.getItem('token') || ''
-  const res = await fetch(`${API}/${id}`, {
+  const res = await fetch(API, {
     method: 'PUT',
     headers: {  Authorization: `Bearer ${token}` },
-    body: data,
+    body: input,
   })
   return res.json()
 }
 
 export async function deleteReport(id) {
   const token = localStorage.getItem('token') || ''
-  const res = await fetch(`${API}/${id}`, {
+  const res = await fetch(API, {
     method: 'DELETE',
     headers: {  Authorization: `Bearer ${token}` },
   })
