@@ -47,7 +47,7 @@
 <script setup>
 import { onMounted, watch } from 'vue'
 import { useUnitState } from '../composables/useUnitState.js'
-import { getUnits, createUnit, updateUnit, deleteUnit } from '../services/unitService.js'
+import { useUnitsQuery } from '../composables/useUnitsQuery.js'
 import { useAuth } from '../composables/useAuth.js'
 
 import UnitForm from '../components/UnitForm.vue'
@@ -67,64 +67,34 @@ const {
 } = useUnitState()
 
 const { isLoggedIn } = useAuth()
+const { unitsQuery, createUnitMutation, updateUnitMutation, deleteUnitMutation } = useUnitsQuery()
+
+watch(
+  () => unitsQuery.data.value, // unwrap the ref here
+  (data) => {
+    if (isLoggedIn.value && Array.isArray(data)) {
+      units.value = data
+    } else {
+      units.value = []
+    }
+  },
+  { immediate: true }
+)
+
 
 watch(isLoggedIn, (loggedIn) => {
-  if (loggedIn) {
-    loadUnits()
-  } else {
+  if (!loggedIn) {
     units.value = [] // Clear data after logout
   }
 })
 
-onMounted(() => {
-  if (isLoggedIn.value) {
-    loadUnits()
-  }
-})
-
+// Search logic remains intact
 function filterUnits(text) {
   searchText.value = text
   page.value = 1 // reset to first page after search
 }
 
-async function loadUnits() {
-  const response = await getUnits()
-  units.value = response.data?.units || response.units || []
-}
-
-async function handleCreate(data) {
-  try {
-    const result = await createUnit(data)
-    if (result.status === 'success') {
-      await loadUnits()
-    } else {
-      alert(result.message || 'Failed to create unit')
-    }
-  } catch (err) {
-    console.error('Create failed:', err.message)
-    alert('Create failed: ' + err.message)
-  }
-}
-
-function startEdit(unit) {
-  selectedUnit.value = unit
-  isEditing.value = true
-}
-
-async function handleUpdate(data) {
-  await updateUnit(selectedUnit.value.unit_id, data)
-  selectedUnit.value = null
-  isEditing.value = false
-  await loadUnits()
-}
-
-async function handleDelete(id) {
-  if (confirm('Are you sure?')) {
-    await deleteUnit(id)
-    await loadUnits()
-  }
-}
-
+// Handles both create and update
 function handleSubmit(data) {
   if (isEditing.value) {
     handleUpdate(data)
@@ -133,5 +103,49 @@ function handleSubmit(data) {
   }
 }
 
-onMounted(loadUnits)
+// Create logic using useMutation
+function handleCreate(data) {
+  createUnitMutation.mutate(data, {
+    onSuccess: () => unitsQuery.refetch(),
+    onError: (err) => alert(err.message || 'Create failed'),
+  })
+}
+
+// Update logic using useMutation
+function handleUpdate(data) {
+  updateUnitMutation.mutate(
+    { id: selectedUnit.value.unit_id, data },
+    {
+      onSuccess: () => {
+        selectedUnit.value = null
+        isEditing.value = false
+        unitsQuery.refetch()
+      },
+      onError: (err) => alert(err.message || 'Update failed'),
+    },
+  )
+}
+
+// Delete logic using useMutation
+function handleDelete(id) {
+  if (confirm('Are you sure?')) {
+    deleteUnitMutation.mutate(id, {
+      onSuccess: () => unitsQuery.refetch(),
+      onError: (err) => alert(err.message || 'Delete failed'),
+    })
+  }
+}
+
+// Edit action preserved
+function startEdit(unit) {
+  selectedUnit.value = unit
+  isEditing.value = true
+}
+
+onMounted(() => {
+  if (isLoggedIn.value) {
+    unitsQuery.refetch()
+  }
+})
 </script>
+

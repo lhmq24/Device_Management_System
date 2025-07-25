@@ -1,16 +1,23 @@
 // composables/useUnitState.js
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const PAGE_SIZE = 10
 
-const units = ref([])
 const selectedUnit = ref(null)
 const isEditing = ref(false)
 const searchText = ref('')
 const page = ref(1)
 
+const units = ref([]) // receives data from query
+
+function setFilteredUnits(units) {
+  units.value = units
+}
+
 const filteredUnits = computed(() =>
-  units.value.filter((u) => u.unit_name.toLowerCase().includes(searchText.value.toLowerCase())),
+  units.value.filter((u) =>
+    u.unit_name.toLowerCase().includes(searchText.value.toLowerCase()),
+  ),
 )
 
 const totalRecords = computed(() => filteredUnits.value.length)
@@ -24,15 +31,15 @@ const totalPages = computed(() => Math.ceil(totalRecords.value / PAGE_SIZE))
 
 export function useUnitState() {
   return {
-    units,
     selectedUnit,
     isEditing,
     searchText,
-    filteredUnits,
+    page,
     paginatedUnits,
     totalRecords,
-    page,
     totalPages,
     PAGE_SIZE,
+    setFilteredUnits,
+    units,
   }
 }
