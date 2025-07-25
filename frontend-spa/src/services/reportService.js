@@ -14,18 +14,19 @@ export async function createReport(data) {
   const token = localStorage.getItem('token') || ''
   const res = await fetch(API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${token}` },
-    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+    body: data,
   })
   return res.json()
 }
 
 export async function updateReport(id, data) {
+  console.log('Updating report with data:', data)
   const token = localStorage.getItem('token') || ''
   const res = await fetch(`${API}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' , Authorization: `Bearer ${token}` },
-    body: JSON.stringify(data),
+    headers: {  Authorization: `Bearer ${token}` },
+    body: data,
   })
   return res.json()
 }

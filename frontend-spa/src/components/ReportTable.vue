@@ -33,14 +33,17 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import { getDeviceById } from '../services/deviceService.js'
 import { getMaintainerById } from '../services/maintainerService.js'
+import { useReportState } from '../composables/useReportState.js'
+
+const { enrichedReports } = useReportState()
 
 const props = defineProps(['reports'])
 defineEmits(['edit', 'delete'])
 
-const enrichedReports = ref([])
+
 
 const deviceCache = new Map()
 const maintainerCache = new Map()
@@ -49,9 +52,6 @@ const maintainerCache = new Map()
 watch(
   () => props.reports,
   async (newReports) => {
-    console.log('reports: ', props.reports)
-    console.log('[ReportTable] Incoming reports:', newReports)
-
     const enriched = await Promise.all(
   newReports.map(async (report) => {
 
@@ -59,15 +59,11 @@ watch(
     let device
     if (deviceCache.has(report.device_id)) {
       device = deviceCache.get(report.device_id)
-      console.log(`  [CACHE] Found device in cache:`, device)
     } else {
       try {
-        console.log(`  [API] Fetching device with ID: ${report.device_id}`)
         const res = await getDeviceById(report.device_id)
-        console.log(`  [API] Response for device ${report.device_id}:`, res)
         device = res?.data
         deviceCache.set(report.device_id, device)
-        console.log(`  [API] Fetched device:`, res)
       } catch (e) {
         console.error(`  [ERROR] Failed to fetch device ${report.device_id}:`, e)
       }
@@ -105,7 +101,11 @@ watch(
 
 function formatDate(dateStr) {
   const date = new Date(dateStr)
-  return date.toISOString().split('T')[0]
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0') // months are 0-based
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
+
 </script>
 

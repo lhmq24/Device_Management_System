@@ -4,8 +4,7 @@ import { ref, computed } from 'vue'
 const reports = ref([])
 const devices = ref([])
 const maintainers = ref([])
-const selected = ref(null)
-const isEditing = ref(false)
+const enrichedReports = ref([])
 
 const PAGE_SIZE = 5
 const page = ref(1)
@@ -23,8 +22,7 @@ export function useReportState() {
     reports,
     devices,
     maintainers,
-    selected,
-    isEditing,
+    enrichedReports,
     page,
     PAGE_SIZE,
     totalRecords,

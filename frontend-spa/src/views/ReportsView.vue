@@ -5,13 +5,15 @@
         <h2 class="card-title mb-4">Maintenance Reports</h2>
 
         <div class="mb-4">
-          <ReportForm
-            :report="selected"
-            :devices="devices"
-            :maintainers="maintainers"
-            :isEdit="isEditing"
-            @submit="isEditing ? handleUpdate : handleCreate"
-          />
+          <div class="mb-4">
+            <ReportForm
+              :report="isEditing ? { ...selected } : null"
+              :devices="devices"
+              :maintainers="maintainers"
+              :isEdit="isEditing"
+              @submit="isEditing ? handleUpdate : handleCreate"
+            />
+          </div>
         </div>
 
         <ReportTable :reports="paginatedReports" @edit="startEdit" @delete="handleDelete" />
@@ -43,25 +45,20 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
 import { getReports, createReport, updateReport, deleteReport } from '../services/reportService.js'
-
 import { getDevices } from '../services/deviceService.js'
 import { getMaintainers } from '../services/maintainerService.js'
-import { useAuth } from '../composables/useAuth.js'
 
-import ReportForm from '../components/ReportForm.vue'
-import ReportTable from '../components/ReportTable.vue'
+import { useAuth } from '../composables/useAuth.js'
+const { isLoggedIn } = useAuth()
 
 import { useReportState } from '../composables/useReportState.js'
-
 const {
   reports,
   devices,
   maintainers,
-  selected,
-  isEditing,
   page,
   PAGE_SIZE,
   totalRecords,
@@ -69,7 +66,11 @@ const {
   paginatedReports,
 } = useReportState()
 
-const { isLoggedIn } = useAuth()
+import ReportForm from '../components/ReportForm.vue'
+import ReportTable from '../components/ReportTable.vue'
+
+const selected = ref(null)
+const isEditing = ref(false)
 
 watch(isLoggedIn, (loggedIn) => {
   if (loggedIn) {
@@ -97,6 +98,7 @@ async function load() {
 }
 
 async function handleCreate(data) {
+  console.log('Creating report with data:', data)
   await createReport(data)
   page.value = 1
   await load()
