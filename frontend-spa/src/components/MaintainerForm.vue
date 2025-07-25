@@ -74,6 +74,13 @@ watch(
 )
 
 function onSubmit() {
-  emit('submit', { ...form.value })
+  const data = new FormData()
+  data.append('m_name', form.value.m_name)
+  data.append('m_email', form.value.m_email)
+  data.append('m_phone', form.value.m_phone)
+  if (props.isEdit) {
+    data.append('id', props.maintainer.m_id)
+  }
+  emit('submit', data)
 }
 </script>

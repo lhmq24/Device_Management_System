@@ -9,12 +9,21 @@ export async function getMaintainers() {
   return json.data
 }
 
+export async function getMaintainerById(id) {
+  const token = localStorage.getItem('token') || ''
+  const res = await fetch(`${API}/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return res.json()
+}
+
 export async function createMaintainer(data) {
   const token = localStorage.getItem('token') || ''
+  console.log('Creating maintainer with data:', data)
   const res = await fetch(API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(data),
+    headers: {  Authorization: `Bearer ${token}` },
+    body: data,
   })
   return res.json()
 }
@@ -23,8 +32,8 @@ export async function updateMaintainer(id, data) {
   const token = localStorage.getItem('token') || ''
   const res = await fetch(`${API}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+    body: data,
   })
   return res.json()
 }

@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
+import { watch } from 'vue'
 import { useUnitState } from '../composables/useUnitState.js'
 import { useUnitsQuery } from '../composables/useUnitsQuery.js'
 import { useAuth } from '../composables/useAuth.js'
@@ -67,18 +67,28 @@ const {
 } = useUnitState()
 
 const { isLoggedIn } = useAuth()
-const { unitsQuery, createUnitMutation, updateUnitMutation, deleteUnitMutation } = useUnitsQuery()
+const {
+  unitsQuery,
+  createUnitMutation,
+  updateUnitMutation,
+  deleteUnitMutation,
+} = useUnitsQuery()
 
-onMounted(() => {
-  if (isLoggedIn.value) {
-    unitsQuery.refetch()
+// --- 🟢 Refetch and assign units on login/logout ---
+watch(isLoggedIn, async (loggedIn) => {
+  if (loggedIn) {
+    const unitsResult = await unitsQuery.refetch()
+    units.value = Array.isArray(unitsResult.data) ? unitsResult.data : []
+  } else {
+    units.value = []
   }
 })
 
+// --- 🟢 Keep syncing query data to state if available ---
 watch(
-  () => unitsQuery.data.value, 
-  (data) => {
-    if (isLoggedIn.value && Array.isArray(data)) {
+  [isLoggedIn, () => unitsQuery.data.value],
+  ([loggedIn, data]) => {
+    if (loggedIn && Array.isArray(data)) {
       units.value = data
     } else {
       units.value = []
@@ -87,20 +97,13 @@ watch(
   { immediate: true }
 )
 
-
-watch(isLoggedIn, (loggedIn) => {
-  if (!loggedIn) {
-    units.value = [] // Clear data after logout
-  }
-})
-
-// Search logic remains intact
+// 🔍 Search logic
 function filterUnits(text) {
   searchText.value = text
-  page.value = 1 // reset to first page after search
+  page.value = 1
 }
 
-// Handles both create and update
+// 💾 Handle submit (create or update)
 function handleSubmit(data) {
   if (isEditing.value) {
     handleUpdate(data)
@@ -109,7 +112,6 @@ function handleSubmit(data) {
   }
 }
 
-// Create logic using useMutation
 function handleCreate(data) {
   createUnitMutation.mutate(data, {
     onSuccess: () => unitsQuery.refetch(),
@@ -117,7 +119,6 @@ function handleCreate(data) {
   })
 }
 
-// Update logic using useMutation
 function handleUpdate(data) {
   updateUnitMutation.mutate(
     { id: selectedUnit.value.unit_id, data },
@@ -128,11 +129,10 @@ function handleUpdate(data) {
         unitsQuery.refetch()
       },
       onError: (err) => alert(err.message || 'Update failed'),
-    },
+    }
   )
 }
 
-// Delete logic using useMutation
 function handleDelete(id) {
   if (confirm('Are you sure?')) {
     deleteUnitMutation.mutate(id, {
@@ -142,10 +142,10 @@ function handleDelete(id) {
   }
 }
 
-// Edit action preserved
 function startEdit(unit) {
   selectedUnit.value = unit
   isEditing.value = true
 }
 </script>
+
 

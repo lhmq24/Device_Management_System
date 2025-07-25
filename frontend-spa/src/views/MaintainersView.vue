@@ -4,6 +4,17 @@
       <div class="card-body">
         <h2 class="card-title mb-4">Maintainers</h2>
 
+        <div class="row g-3 align-items-center mb-4">
+          <div class="col-md-6">
+            <input
+              v-model="searchTerm"
+              type="text"
+              class="form-control"
+              placeholder="🔍 Search devices..."
+            />
+          </div>
+        </div>
+
         <div class="mb-4">
           <MaintainerForm :maintainer="selected" :isEdit="isEditing" @submit="handleSubmit" />
         </div>
@@ -54,6 +65,7 @@ const {
   selected,
   isEditing,
   page,
+  searchTerm,
   PAGE_SIZE,
   totalRecords,
   totalPages,

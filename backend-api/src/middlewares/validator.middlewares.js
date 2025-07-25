@@ -10,10 +10,7 @@ function validateRequest(validator) {
     try {
       let input = { ...req.params };
       if ((req.method === "GET") || (req.method === "DELETE")) {
-        console.log("input params: ", req.params);
-        console.log("input query: ", req.query);
         input = { ...req.params, ...req.query };
-        console.log("input: ", input);
       }
       if ((req.method === "POST") || (req.method === "PUT")) {
         if (req.file && (req.file.originalname === "" || req.file.size === 0)) {

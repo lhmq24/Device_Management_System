@@ -16,6 +16,8 @@ import AppFooter from './components/AppFooter.vue'
 
 const { restoreAuth } = useAuth()
 
+// restoreAuth()
+
 onMounted(() => {
   restoreAuth()
 })

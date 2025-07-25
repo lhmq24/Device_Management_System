@@ -15,7 +15,18 @@ export async function getDevices() {
   return data.devices || data.data?.devices || []
 }
 
+export async function getDeviceById(id) {
+  const token = localStorage.getItem('token') || ''
+  const response = await axios.get(`${API}/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
+}
+
 export async function createDevice(data) {
+  console.log('Creating device with data:', data)
   const token = localStorage.getItem('token') || ''
   return await fetch(API, {
     method: 'POST',

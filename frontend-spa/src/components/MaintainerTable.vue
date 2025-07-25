@@ -10,7 +10,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="m in maintainers" :key="m.id">
+        <tr v-for="m in maintainers" :key="m.m_id">
           <td>{{ m.m_name }}</td>
           <td>{{ m.m_email }}</td>
           <td>{{ m.m_phone }}</td>
@@ -19,7 +19,7 @@
               <button @click="$emit('edit', m)" class="btn btn-sm btn-outline-warning">
                 <i class="fas fa-edit me-1"></i>Edit
               </button>
-              <button @click="$emit('delete', m.id)" class="btn btn-sm btn-outline-danger">
+              <button @click="$emit('delete', m.m_id)" class="btn btn-sm btn-outline-danger">
                 <i class="fas fa-trash me-1"></i>Delete
               </button>
             </div>

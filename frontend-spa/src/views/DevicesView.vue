@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { watch, onMounted } from 'vue'
+import { watch } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useDeviceState } from '../composables/useDeviceState'
 import { useDevicesQuery } from '../composables/useDevicesQuery'
@@ -111,20 +111,30 @@ const {
   deleteDeviceMutation,
 } = useDevicesQuery()
 
-onMounted(() => {
-  if (isLoggedIn.value) {
-    devicesQuery.refetch()
-    unitsQuery.refetch()
+// Refetch data when login state changes
+watch(isLoggedIn, async (loggedIn) => {
+  if (loggedIn) {
+    const [devicesResult, unitsResult] = await Promise.all([
+      devicesQuery.refetch(),
+      unitsQuery.refetch(),
+    ])
+
+    devices.value = Array.isArray(devicesResult.data) ? devicesResult.data : []
+    units.value = unitsResult.data || []
+  } else {
+    devices.value = []
   }
 })
 
-watch(
-  [() => unitsQuery.data.value, () => devicesQuery.data.value],
-  ([unitsData, devicesData]) => {
-    units.value = unitsData || []
 
-    if (isLoggedIn.value && Array.isArray(devicesData)) {
-      devices.value = devicesData
+// Sync data from queries into local refs
+watch(
+  [isLoggedIn, () => devicesQuery.data.value, () => unitsQuery.data.value],
+  ([loggedIn, devicesData, unitsData]) => {
+    if (loggedIn) {
+      // Reassign devices only if login is active and data is ready
+      devices.value = Array.isArray(devicesData) ? devicesData : []
+      units.value = unitsData || []
     } else {
       devices.value = []
     }
@@ -132,11 +142,6 @@ watch(
   { immediate: true }
 )
 
-watch(isLoggedIn, (loggedIn) => {
-  if (!loggedIn) {
-    devices.value = [] // Clear data after logout
-  }
-})
 
 function toggleForm() {
   if (showForm.value || isEditing.value) handleCancel()
