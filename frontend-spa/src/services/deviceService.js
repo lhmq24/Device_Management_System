@@ -31,8 +31,8 @@ export async function updateDevice(id, data) {
   const token = localStorage.getItem('token') || ''
   return await fetch(`${API}/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+    body: data,
   })
 }
 

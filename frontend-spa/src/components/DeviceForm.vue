@@ -51,21 +51,19 @@
     </div>
 
     <!-- File Upload Field -->
-<div class="col-12">
-  <label for="deviceImage" class="form-label">Upload Image</label>
-  <input
-    id="deviceImage"
-    type="file"
-    class="form-control"
-    accept="image/*"
-    @change="handleFileChange"
-/>
-  <div v-if="previewUrl" class="mt-2">
-    <img :src="previewUrl" alt="Preview" class="img-thumbnail" style="max-height: 150px" />
-  </div>
-</div>
-
-
+    <div class="col-12">
+      <label for="deviceImage" class="form-label">Upload Image</label>
+      <input
+        id="deviceImage"
+        type="file"
+        class="form-control"
+        accept="image/*"
+        @change="handleFileChange"
+      />
+      <div v-if="previewUrl" class="mt-2">
+        <img :src="previewUrl" alt="Preview" class="img-thumbnail" style="max-height: 150px" />
+      </div>
+    </div>
 
     <!-- Submit Button -->
     <div class="col-12 d-flex justify-content-end">
@@ -103,10 +101,16 @@ watch(
   (val) => {
     const safeDevice = val || {}
 
+    const formatDate = (dateStr) => {
+      if (!dateStr) return ''
+      const date = new Date(dateStr)
+      return date.toISOString().split('T')[0] // keep only YYYY-MM-DD
+    }
+
     form.value = {
       unit_id: safeDevice.unit_id ?? 1,
       device_name: safeDevice.device_name ?? '',
-      device_buy_date: safeDevice.device_buy_date ?? '',
+      device_buy_date: formatDate(safeDevice.device_buy_date),
       device_maintenance_interval: safeDevice.device_maintenance_interval ?? 30,
       device_img: safeDevice.device_img ?? '/images/blank-profile-picture.png',
     }
