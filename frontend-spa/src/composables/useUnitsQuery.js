@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { getUnits, createUnit, updateUnit, deleteUnit } from '../services/unitService'
+import {
+  getUnits,
+  createUnit,
+  updateUnit,
+  deleteUnit,
+  getDevicesByUnitId,
+} from '../services/unitService'
 
 export function useUnitsQuery() {
   const queryClient = useQueryClient()
@@ -31,10 +37,20 @@ export function useUnitsQuery() {
     },
   })
 
+    function useDevicesByUnitIdQuery(unitId) {
+      return useQuery({
+        queryKey: ['devices', unitId],
+        queryFn: () => getDevicesByUnitId(unitId),
+        enabled: !!unitId, // prevent calling with undefined
+        select: (data) => data.devices || data.data?.devices || [],
+      })
+    }
+
   return {
     unitsQuery,
     createUnitMutation,
     updateUnitMutation,
     deleteUnitMutation,
+    useDevicesByUnitIdQuery,
   }
 }

@@ -50,6 +50,9 @@
           edit-btn-text="Edit"
           delete-btn-text="Remove"
         />
+        <h3 v-if="devices.length === 0 && !isEditing" class="card-title mt-2 mb-2">
+          Oops, no devices found for this Unit
+        </h3>
 
         <!-- Pagination controls -->
         <div class="d-flex justify-content-between align-items-center mt-3">
@@ -79,16 +82,19 @@
 </template>
 
 <script setup>
-import { watch } from 'vue'
+import { watch, computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useDeviceState } from '../composables/useDeviceState'
 import { useDevicesQuery } from '../composables/useDevicesQuery'
 import { useUnitsQuery } from '../composables/useUnitsQuery'
+const { unitsQuery, useDevicesByUnitIdQuery } = useUnitsQuery()
 
 import DeviceForm from '../components/DeviceForm.vue'
 import DeviceTable from '../components/DeviceTable.vue'
 
-const { unitsQuery } = useUnitsQuery()
+import { useRoute } from 'vue-router'
+const route = useRoute()
+
 const {
   devices,
   units,
@@ -104,44 +110,57 @@ const {
 } = useDeviceState()
 
 const { isLoggedIn } = useAuth()
-const {
-  devicesQuery,
-  createDeviceMutation,
-  updateDeviceMutation,
-  deleteDeviceMutation,
-} = useDevicesQuery()
+const { devicesQuery, createDeviceMutation, updateDeviceMutation, deleteDeviceMutation } =
+  useDevicesQuery()
 
-// Refetch data when login state changes
-watch(isLoggedIn, async (loggedIn) => {
-  if (loggedIn) {
-    const [devicesResult, unitsResult] = await Promise.all([
-      devicesQuery.refetch(),
-      unitsQuery.refetch(),
-    ])
+const unitId = computed(() => route.query.unitId || null)
 
-    devices.value = Array.isArray(devicesResult.data) ? devicesResult.data : []
-    units.value = unitsResult.data || []
-  } else {
-    devices.value = []
-  }
-})
+// Watch for unitId changes and fetch filtered devices
+watch(
+  () => unitId.value,
+  (newUnitId) => {
+    if (newUnitId) {
+      const query = useDevicesByUnitIdQuery(Number(newUnitId))
 
+      watch(
+        () => query.data.value,
+        (newDevices) => {
+          if (query.isError.value) {
+            console.warn('No devices found or failed:', query.error.value)
+            devices.value = []
+          } else {
+            devices.value = Array.isArray(newDevices) ? newDevices : []
+          }
+        },
+        { immediate: true },
+      )
+    }
+  },
+  { immediate: true },
+)
 
-// Sync data from queries into local refs
+// Handle all-devices query and units - ONLY when no unitId is present
 watch(
   [isLoggedIn, () => devicesQuery.data.value, () => unitsQuery.data.value],
   ([loggedIn, devicesData, unitsData]) => {
     if (loggedIn) {
-      // Reassign devices only if login is active and data is ready
-      devices.value = Array.isArray(devicesData) ? devicesData : []
+      // Always update units
       units.value = unitsData || []
+
+      // ONLY update devices when no unitId filter is active
+      if (!unitId.value) {
+        console.log('Fetching all devices (no unitId)')
+        devices.value = Array.isArray(devicesData) ? devicesData : []
+      } else {
+        console.log('unitId detected → skipping all-devices fetch')
+      }
     } else {
       devices.value = []
+      units.value = []
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
-
 
 function toggleForm() {
   if (showForm.value || isEditing.value) handleCancel()
@@ -156,9 +175,7 @@ function handleCancel() {
 
 function handleSubmit(data) {
   if (isEditing.value) {
-    updateDeviceMutation.mutate(
-      { id: selectedDevice.value.device_id, data },
-    )
+    updateDeviceMutation.mutate({ id: selectedDevice.value.device_id, data })
   } else {
     createDeviceMutation.mutate(data, {
       onSuccess: () => {
@@ -170,7 +187,6 @@ function handleSubmit(data) {
     })
   }
 }
-
 
 function startEdit(device) {
   selectedDevice.value = { ...device }
@@ -184,4 +200,3 @@ function handleDelete(id) {
   }
 }
 </script>
-

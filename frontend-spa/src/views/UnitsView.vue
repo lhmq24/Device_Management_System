@@ -15,8 +15,13 @@
         </div>
 
         <!-- Unit table -->
-        <UnitTable :units="paginatedUnits" @edit="startEdit" @delete="handleDelete" />
-        
+        <UnitTable
+          :units="paginatedUnits"
+          @edit="startEdit"
+          @delete="handleDelete"
+          @view-all-devices="handleViewAllDevices"
+        />
+
         <!-- Pagination controls -->
         <div class="d-flex justify-content-between align-items-center mt-3">
           <div>
@@ -46,6 +51,10 @@
 
 <script setup>
 import { watch } from 'vue'
+
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
 import { useUnitState } from '../composables/useUnitState.js'
 import { useUnitsQuery } from '../composables/useUnitsQuery.js'
 import { useAuth } from '../composables/useAuth.js'
@@ -74,7 +83,7 @@ const {
   deleteUnitMutation,
 } = useUnitsQuery()
 
-// --- 🟢 Refetch and assign units on login/logout ---
+// ---  Refetch and assign units on login/logout ---
 watch(isLoggedIn, async (loggedIn) => {
   if (loggedIn) {
     const unitsResult = await unitsQuery.refetch()
@@ -84,7 +93,7 @@ watch(isLoggedIn, async (loggedIn) => {
   }
 })
 
-// --- 🟢 Keep syncing query data to state if available ---
+// --- Keep syncing query data to state if available ---
 watch(
   [isLoggedIn, () => unitsQuery.data.value],
   ([loggedIn, data]) => {
@@ -94,7 +103,7 @@ watch(
       units.value = []
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 // 🔍 Search logic
@@ -103,7 +112,7 @@ function filterUnits(text) {
   page.value = 1
 }
 
-// 💾 Handle submit (create or update)
+//  Handle submit (create or update)
 function handleSubmit(data) {
   if (isEditing.value) {
     handleUpdate(data)
@@ -129,7 +138,7 @@ function handleUpdate(data) {
         unitsQuery.refetch()
       },
       onError: (err) => alert(err.message || 'Update failed'),
-    }
+    },
   )
 }
 
@@ -146,6 +155,12 @@ function startEdit(unit) {
   selectedUnit.value = unit
   isEditing.value = true
 }
+
+async function handleViewAllDevices(unitId) {
+  console.log('Start to move to Device View with unitId: ', unitId.toString())
+  router.push({
+    path: '/devices',
+    query: { unitId: unitId.toString() }, // or use `state` instead
+  })
+}
 </script>
-
-

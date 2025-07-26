@@ -16,6 +16,9 @@
           <button class="btn btn-sm btn-danger" @click="$emit('delete', unit.unit_id)">
             Delete
           </button>
+          <button class="btn btn-sm btn-success mt-2" @click="$emit('view-all-devices', unit.unit_id)">
+            View all devices
+          </button>
         </td>
       </tr>
     </tbody>
@@ -24,5 +27,5 @@
 
 <script setup>
 defineProps(['units'])
-defineEmits(['edit', 'delete'])
+defineEmits(['edit', 'delete', 'view-all-devices'])
 </script>

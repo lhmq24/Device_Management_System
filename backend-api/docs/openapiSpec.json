@@ -5,6 +5,11 @@
     "version": "1.0.0",
     "description": "A simple device maintenance app API"
   },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "servers": [
     {
       "url": "http://localhost:3000"
@@ -1305,6 +1310,13 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "Unit": {
         "type": "object",

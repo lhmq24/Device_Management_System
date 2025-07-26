@@ -18,6 +18,14 @@ export async function getUnit(id) {
   return await res.json()
 }
 
+export async function getDevicesByUnitId(id) {
+  const token = localStorage.getItem('token') || ''
+  const res = await fetch(`${API_URL}/${id}/devices`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return await res.json()
+}
+
 export async function createUnit(data) {
   const token = localStorage.getItem('token') || ''
   const formData = new FormData()
