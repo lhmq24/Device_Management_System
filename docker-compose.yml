@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: lhmq-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: web-services
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend-api/sql/init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql
+    ports:
+      - "5432:5432"  # PostgreSQL available on host via 5432
+
+  backend:
+    build: ./backend-api
+    container_name: lhmq-backend
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: web-services
+
+volumes:
+  pgdata:
