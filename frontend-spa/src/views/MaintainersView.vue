@@ -10,56 +10,81 @@
               v-model="searchTerm"
               type="text"
               class="form-control"
-              placeholder="🔍 Search devices..."
+              placeholder="🔍 Search maintainers..."
             />
           </div>
         </div>
 
-        <div class="mb-4">
-          <MaintainerForm :maintainer="selected" :isEdit="isEditing" @submit="handleSubmit" />
-        </div>
-
-        <MaintainerTable
-          :maintainers="paginatedMaintainers"
-          @edit="startEdit"
-          @delete="handleDelete"
-        />
-        <!-- Pagination controls -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          <div>
-            Showing
-            <strong>{{ (page - 1) * PAGE_SIZE + 1 }}</strong> -
-            <strong>{{ Math.min(page * PAGE_SIZE, totalRecords) }}</strong>
-            of <strong>{{ totalRecords }}</strong> maintainers
-          </div>
-
-          <div class="btn-group">
-            <button class="btn btn-outline-secondary" @click="page--" :disabled="page <= 1">
-              Prev
-            </button>
-            <button
-              class="btn btn-outline-secondary"
-              @click="page++"
-              :disabled="page >= totalPages"
-            >
-              Next
-            </button>
+        <!-- Loading state -->
+        <div v-if="maintainersQuery.isLoading.value" class="text-center py-4">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
+
+        <!-- Error state -->
+        <div v-else-if="maintainersQuery.isError.value" class="alert alert-danger">
+          Error loading maintainers: {{ maintainersQuery.error.value?.message }}
+          <button @click="maintainersQuery.refetch()" class="btn btn-sm btn-outline-danger ms-2">
+            Retry
+          </button>
+        </div>
+
+        <!-- Content -->
+        <template v-else>
+          <div class="mb-4">
+            <MaintainerForm 
+              :maintainer="selected" 
+              :isEdit="isEditing" 
+              @submit="handleSubmit"
+              :isLoading="createMaintainerMutation.isPending.value || updateMaintainerMutation.isPending.value"
+            />
+          </div>
+
+          <MaintainerTable
+            :maintainers="paginatedMaintainers"
+            @edit="startEdit"
+            @delete="handleDelete"
+            :isDeleting="deleteMaintainerMutation.isPending.value"
+          />
+          
+          <!-- Pagination controls -->
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+              Showing
+              <strong>{{ (page - 1) * PAGE_SIZE + 1 }}</strong> -
+              <strong>{{ Math.min(page * PAGE_SIZE, totalRecords) }}</strong>
+              of <strong>{{ totalRecords }}</strong> maintainers
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-outline-secondary" @click="page--" :disabled="page <= 1">
+                Prev
+              </button>
+              <button
+                class="btn btn-outline-secondary"
+                @click="page++"
+                :disabled="page >= totalPages"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
-import {
-  getMaintainers,
-  createMaintainer,
-  updateMaintainer,
-  deleteMaintainer,
-} from '../services/maintainerService.js'
+import { watch } from 'vue'
+import { useMaintainersQuery } from '../composables/useMaintainersQuery.js'
 import { useMaintainerState } from '../composables/useMaintainerState.js'
+import { useAuth } from '../composables/useAuth.js'
+
+import MaintainerForm from '../components/MaintainerForm.vue'
+import MaintainerTable from '../components/MaintainerTable.vue'
+
 const {
   maintainers,
   selected,
@@ -72,67 +97,70 @@ const {
   paginatedMaintainers,
 } = useMaintainerState()
 
-import { useAuth } from '../composables/useAuth.js'
-
-import MaintainerForm from '../components/MaintainerForm.vue'
-import MaintainerTable from '../components/MaintainerTable.vue'
-
 const { isLoggedIn } = useAuth()
+const { 
+  maintainersQuery, 
+  createMaintainerMutation, 
+  updateMaintainerMutation, 
+  deleteMaintainerMutation 
+} = useMaintainersQuery()
 
+// Watch for login state and sync data
+watch(
+  [isLoggedIn, () => maintainersQuery.data.value],
+  ([loggedIn, maintainersData]) => {
+    if (loggedIn && maintainersData) {
+      maintainers.value = Array.isArray(maintainersData) ? maintainersData : []
+    } else if (!loggedIn) {
+      maintainers.value = []
+    }
+  },
+  { immediate: true }
+)
+
+// Auto-refetch when user logs in
 watch(isLoggedIn, (loggedIn) => {
   if (loggedIn) {
-    load()
-  } else {
-    maintainers.value = [] // Clear data after logout
+    maintainersQuery.refetch()
   }
 })
 
-onMounted(() => {
-  if (isLoggedIn.value) {
-    load()
-  }
-})
-
-async function load() {
-  const response = await getMaintainers()
-  maintainers.value = response.maintainers || []
-}
-
-async function handleCreate(data) {
-  const result = await createMaintainer(data)
-  console.log('Create maintainer result:', result)
-  page.value = 1
-  await load()
-}
-
-function startEdit(m) {
-  selected.value = m
+function startEdit(maintainer) {
+  selected.value = maintainer
   isEditing.value = true
-}
-
-async function handleUpdate(data) {
-  await updateMaintainer(selected.value.id, data)
-  selected.value = null
-  isEditing.value = false
-  page.value = 1
-  await load()
-}
-
-async function handleDelete(id) {
-  if (confirm('Delete this maintainer?')) {
-    await deleteMaintainer(id)
-    page.value = 1
-    await load()
-  }
 }
 
 function handleSubmit(data) {
   if (isEditing.value) {
-    handleUpdate(data)
+    updateMaintainerMutation.mutate(
+      { id: selected.value.id, data },
+      {
+        onSuccess: () => {
+          selected.value = null
+          isEditing.value = false
+          page.value = 1
+        }
+      }
+    )
   } else {
-    handleCreate(data)
+    createMaintainerMutation.mutate(data, {
+      onSuccess: () => {
+        // Keep form visible, just clear values
+        selected.value = {}
+        isEditing.value = false
+        page.value = 1
+      }
+    })
   }
 }
 
-onMounted(load)
+function handleDelete(id) {
+  if (confirm('Delete this maintainer?')) {
+    deleteMaintainerMutation.mutate(id, {
+      onSuccess: () => {
+        page.value = 1
+      }
+    })
+  }
+}
 </script>
