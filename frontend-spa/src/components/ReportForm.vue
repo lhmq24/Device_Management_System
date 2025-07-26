@@ -3,16 +3,18 @@
     <!-- Device -->
     <div class="mb-3">
       <label for="device" class="form-label">Device</label>
-      <select id="device" v-model="form.device_id" required class="form-select">
+      <select id="device" v-model="form.device_id" required class="form-select" :disabled="isEdit">
         <option disabled value="">Select Device</option>
-        <option v-for="d in devices" :key="d.device_id" :value="d.device_id">{{ d.device_name }}</option>
+        <option v-for="d in devices" :key="d.device_id" :value="d.device_id">
+          {{ d.device_name }}
+        </option>
       </select>
     </div>
 
     <!-- Maintainer -->
     <div class="mb-3">
       <label for="maintainer" class="form-label">Maintainer</label>
-      <select id="maintainer" v-model="form.m_id" required class="form-select">
+      <select id="maintainer" v-model="form.m_id" required class="form-select" :disabled="isEdit">
         <option disabled value="">Select Maintainer</option>
         <option v-for="m in maintainers" :key="m.m_id" :value="m.m_id">{{ m.m_name }}</option>
       </select>
@@ -21,7 +23,14 @@
     <!-- Maintenance Date -->
     <div class="mb-3">
       <label for="date" class="form-label">Maintenance Date</label>
-      <input id="date" v-model="form.mr_date" type="date" required class="form-control" />
+      <input
+        id="date"
+        v-model="form.mr_date"
+        type="date"
+        required
+        class="form-control"
+        :disabled="isEdit"
+      />
     </div>
 
     <!-- Note -->
@@ -37,7 +46,6 @@
     </button>
   </form>
 </template>
-
 
 <script setup>
 import { ref, watch } from 'vue'
@@ -75,7 +83,7 @@ watch(
           mr_note: '',
         }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 function onSubmit() {
@@ -88,6 +96,4 @@ function formatDate(dateStr) {
   const date = new Date(dateStr)
   return date.toISOString().split('T')[0] // yyyy-mm-dd
 }
-
 </script>
-

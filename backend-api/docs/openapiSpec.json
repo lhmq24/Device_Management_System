@@ -1146,7 +1146,7 @@
         }
       },
       "put": {
-        "summary": "PUT /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19",
+        "summary": "PUT /api/maintenance-reports",
         "responses": {
           "200": {
             "description": "Success",
@@ -1211,7 +1211,7 @@
         "parameters": []
       },
       "delete": {
-        "summary": "DELETE /api/maintenance-reports?device_id=1&m_id=2&mr_date=2025-06-19",
+        "summary": "DELETE /api/maintenance-reports?device_id=1&m_id=2&mr_date=\"2025-06-08\"",
         "responses": {
           "200": {
             "description": "Success",

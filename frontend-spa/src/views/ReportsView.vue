@@ -108,9 +108,14 @@ function handleSubmit(data) {
 
 async function handleCreate(data) {
   console.log('Creating report with data:', data)
-  const newReport = await createReport(data)
-  reports.value.unshift(newReport) // add to top
+  const formData = new FormData()
+  formData.append('device_id', data.device_id)
+  formData.append('m_id', data.m_id)
+  formData.append('mr_date', data.mr_date)
+  formData.append('mr_note', data.mr_note)
+  await createReport(formData)
   page.value = 1
+  await load() // Reload table
 }
 
 function startEdit(report) {
@@ -124,7 +129,7 @@ async function handleUpdate(data) {
   formData.append('device_id', data.device_id)
   formData.append('m_id', data.m_id)
   formData.append('mr_date', data.mr_date)
-  formData.append('mr_note', data.mr_desc)
+  formData.append('mr_note', data.mr_note)
   const updated = await updateReport(formData)
   const idx = reports.value.findIndex(
     (r) =>
@@ -138,9 +143,11 @@ async function handleUpdate(data) {
   selected.value = null
   isEditing.value = false
   page.value = 1
+  await load() // Reload to ensure data is fresh
 }
 
 async function handleDelete(data) {
+  console.log('Deleting report with data:', data)
   if (confirm('Delete this report?')) {
     await deleteReport(data)
     page.value = 1

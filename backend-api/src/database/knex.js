@@ -3,6 +3,7 @@ const types = require("pg").types;
 types.setTypeParser(types.builtins.INT8, (value) => {
   return parseInt(value, 10);
 });
+types.setTypeParser(types.builtins.DATE, (val) => val);
 module.exports = require("knex")({
   client: "pg",
   connection: {

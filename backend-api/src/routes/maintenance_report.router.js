@@ -35,7 +35,7 @@ module.exports.setup = (app) => {
       if (device_id && m_id && mr_date) {
         return maintenanceReportsController.getReport(req, res, next); // get single report
       }
-
+      console.log("Fetching reports with no params in controller:", req.validatedData);
       return maintenanceReportsController.getReports(req, res, next); // paginated list
     }
   );

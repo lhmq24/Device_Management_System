@@ -33,15 +33,15 @@
 </template>
 
 <script setup>
-import { computed, reactive} from 'vue'
+import { computed, reactive } from 'vue'
 import { getDeviceById } from '../services/deviceService.js'
 import { getMaintainerById } from '../services/maintainerService.js'
 
 const props = defineProps({
   reports: {
     type: Array,
-    default: () => []
-  }
+    default: () => [],
+  },
 })
 defineEmits(['edit', 'delete'])
 
@@ -49,15 +49,10 @@ defineEmits(['edit', 'delete'])
 const deviceCache = reactive(new Map())
 const maintainerCache = reactive(new Map())
 
-// === Format date ===
 function formatDate(dateStr) {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
-  return date.toLocaleDateString('th-TH', {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-})
-
+  return date.toISOString().split('T')[0] // yyyy-mm-dd
 }
 
 // === Enrich reports as computed value ===
@@ -91,8 +86,8 @@ const enrichedReports = computed(() =>
       ...report,
       device_name: device?.device_name || `Device #${report.device_id}`,
       m_name: maintainer?.m_name || `Maintainer #${report.m_id}`,
-      formatted_date: formatDate(report.mr_date)
+      formatted_date: formatDate(report.mr_date),
     }
-  })
+  }),
 )
 </script>

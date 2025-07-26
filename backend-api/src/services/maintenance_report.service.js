@@ -1,6 +1,10 @@
 const knex = require("../database/knex");
 // const Paginator = require("./Paginator");
 
+function toPlainDateString(d) {
+  return d instanceof Date ? d.toISOString().split("T")[0] : d;
+}
+
 /**
  * @import {
  * maintenanceReportSchema,
@@ -26,20 +30,14 @@ function readReportData(payload) {
 async function createReport(payload) {
   const data = readReportData(payload);
   await reportRepository().insert(data);
-  return data;
+  return {
+    ...data,
+    mr_date: toPlainDateString(data.mr_date), // Ensure clean return
+  };
 }
 
 async function getManyReports(query) {
-  const {
-    // page = 1,
-    // limit = 10,
-    device_id,
-    m_id,
-    sort_by = "mr_date",
-    order = "desc",
-  } = query;
-
-  // const paginator = new Paginator(page, limit);
+  const { device_id, m_id, sort_by = "mr_date", order = "desc" } = query;
 
   const results = await reportRepository()
     .where((builder) => {
@@ -47,26 +45,32 @@ async function getManyReports(query) {
       if (m_id) builder.where("m_id", m_id);
     })
     .select(knex.raw("COUNT(*) OVER() AS record_count"), "*")
-    .orderBy(sort_by, order)
-    // .limit(paginator.limit)
-    // .offset(paginator.offset);
+    .orderBy(sort_by, order);
+  const reports = results.map((r) => ({
+    ...r,
+    record_count: undefined,
+    mr_date: toPlainDateString(r.mr_date),
+  }));
 
-  // const totalRecords = results[0]?.record_count ?? 0;
-  const reports = results.map((r) => ({ ...r, record_count: undefined }));
-
-  return {
-    // metadata: paginator.getMetadata(totalRecords),
-    reports,
-  };
+  return { reports };
 }
 
 async function getReportByPK(validatedData) {
   const { device_id, m_id, mr_date } = validatedData;
-  return reportRepository().where({ device_id, m_id, mr_date }).first();
+
+  const report = await reportRepository()
+    .where({ device_id, m_id, mr_date })
+    .first();
+
+  return report
+    ? {
+        ...report,
+        mr_date: toPlainDateString(report.mr_date),
+      }
+    : null;
 }
 
 async function updateReport(payload) {
- 
   const { device_id, m_id, mr_date } = payload;
 
   const existing = await getReportByPK(payload);
@@ -76,19 +80,31 @@ async function updateReport(payload) {
 
   if (Object.keys(data).length > 0) {
     await reportRepository().where({ device_id, m_id, mr_date }).update(data);
-    return { ...existing, ...data };
+    return {
+      ...existing,
+      ...data,
+      mr_date: toPlainDateString(data.mr_date || existing.mr_date),
+    };
   }
 
-  return existing;
+  return {
+    ...existing,
+    mr_date: toPlainDateString(existing.mr_date),
+  };
 }
 
 async function deleteReport(payload) {
-  const report = await getReportByPK(payload);
   const { device_id, m_id, mr_date } = payload;
+
+  const report = await getReportByPK(payload);
   if (!report) return null;
 
   await reportRepository().where({ device_id, m_id, mr_date }).del();
-  return report;
+
+  return {
+    ...report,
+    mr_date: toPlainDateString(report.mr_date),
+  };
 }
 
 module.exports = {
