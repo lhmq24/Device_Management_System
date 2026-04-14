@@ -19,7 +19,6 @@ export function useMaintainersQuery() {
   const createMaintainerMutation = useMutation({
     mutationFn: maintainerService.createMaintainer,
     onSuccess: (data) => {
-      console.log('Create maintainer result:', data)
       // Invalidate and refetch maintainers
       queryClient.invalidateQueries({ queryKey: ['maintainers'] })
     },

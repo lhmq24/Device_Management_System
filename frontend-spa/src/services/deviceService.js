@@ -26,7 +26,6 @@ export async function getDeviceById(id) {
 }
 
 export async function createDevice(data) {
-  console.log('Creating device with data:', data)
   const token = localStorage.getItem('token') || ''
   return await fetch(API, {
     method: 'POST',

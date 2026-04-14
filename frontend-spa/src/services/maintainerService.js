@@ -19,7 +19,6 @@ export async function getMaintainerById(id) {
 
 export async function createMaintainer(data) {
   const token = localStorage.getItem('token') || ''
-  console.log('Creating maintainer with data:', data)
   const res = await fetch(API, {
     method: 'POST',
     headers: {  Authorization: `Bearer ${token}` },

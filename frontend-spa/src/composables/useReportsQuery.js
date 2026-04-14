@@ -18,7 +18,6 @@ export function useReportsQuery() {
   // Mutation for creating report
   const createReportMutation = useMutation({
     mutationFn: (data) => {
-      console.log('Creating report with data:', data)
       const formData = new FormData()
       formData.append('device_id', data.device_id)
       formData.append('m_id', data.m_id)
@@ -27,7 +26,6 @@ export function useReportsQuery() {
       return reportService.createReport(formData)
     },
     onSuccess: (data) => {
-      console.log('Create report result:', data)
       // Invalidate and refetch reports
       queryClient.invalidateQueries({ queryKey: ['reports'] })
     },
@@ -39,7 +37,6 @@ export function useReportsQuery() {
   // Mutation for updating report
   const updateReportMutation = useMutation({
     mutationFn: (data) => {
-      console.log('Updating report with data in composable:', data)
       const formData = new FormData()
       formData.append('device_id', data.device_id)
       formData.append('m_id', data.m_id)
@@ -59,7 +56,6 @@ export function useReportsQuery() {
   // Mutation for deleting report
   const deleteReportMutation = useMutation({
     mutationFn: (data) => {
-      console.log('Deleting report with data:', data)
       return reportService.deleteReport(data)
     },
     onSuccess: () => {

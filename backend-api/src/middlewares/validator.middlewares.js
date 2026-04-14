@@ -29,12 +29,6 @@ function validateRequest(validator) {
           input.imgFile = req.file;
         }       
       }
-
-      console.log("Input data:", input);
-      console.log("Params data:", req.params);
-      console.log("Body data:", req.body);
-      console.log("FINAL input to validate:", input);
-      console.log("Validator keys:", Object.keys(validator.shape));
       const result = validator.parse(input);
       req.validatedData = result;
 

@@ -38,7 +38,7 @@ async function getDevicesByFilter(req, res, next) {
       }
       return res.status(200).json(JSend.success({ devices }));
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return next(new ApiError(500, "Internal Server Error"));
     }
   }
@@ -56,7 +56,7 @@ async function getDevicesByFilter(req, res, next) {
       })
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return next(new ApiError(500, "Internal Server Error"));
   }
 }
@@ -72,7 +72,7 @@ async function getDevice(req, res, next) {
 
     return res.status(200).json(JSend.success(device));
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return next(new ApiError(500, "Internal Server Error"));
   }
 }
@@ -94,7 +94,7 @@ async function updateDevice(req, res, next) {
 
     return res.status(200).json(JSend.success( updated ));
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return next(new ApiError(500, "Internal Server Error"));
   }
 }
@@ -111,7 +111,7 @@ async function deleteDevice(req, res, next) {
 
     return res.status(200).json(JSend.success());
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return next(new ApiError(500, "Internal Server Error"));
   }
 }

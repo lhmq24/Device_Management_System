@@ -68,8 +68,6 @@ async function getDevicesByUnitId(unit_id) {
 }
 
 async function updateUnit(payload) {
-  console.log("payload: ", payload);
-  console.log("unit_id: ", payload.unitId);
   const unit = await getUnitById(payload.unitId);
   if (!unit) return null;
 

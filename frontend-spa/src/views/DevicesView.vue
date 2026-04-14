@@ -149,11 +149,8 @@ watch(
 
       // ONLY update devices when no unitId filter is active
       if (!unitId.value) {
-        console.log('Fetching all devices (no unitId)')
         devices.value = Array.isArray(devicesData) ? devicesData : []
-      } else {
-        console.log('unitId detected → skipping all-devices fetch')
-      }
+      } 
     } else {
       devices.value = []
       units.value = []

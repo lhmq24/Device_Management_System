@@ -157,7 +157,6 @@ function startEdit(unit) {
 }
 
 async function handleViewAllDevices(unitId) {
-  console.log('Start to move to Device View with unitId: ', unitId.toString())
   router.push({
     path: '/devices',
     query: { unitId: unitId.toString() }, // or use `state` instead

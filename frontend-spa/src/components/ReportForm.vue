@@ -87,7 +87,6 @@ watch(
 )
 
 function onSubmit() {
-  console.log('Submitting report in form:', form.value)
   emit('submit', { ...form.value })
 }
 

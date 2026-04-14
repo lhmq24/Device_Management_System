@@ -51,7 +51,6 @@ async function getUnit(req, res, next) {
 // PUT /api/units/:id
 async function updateUnit(req, res, next) {
   try {
-    console.log("ValidatedData: ", req.validatedData);
     const updated = await unitService.updateUnit(req.validatedData);
     if (!updated) return next(new ApiError(404, "Unit not found"));
     return res

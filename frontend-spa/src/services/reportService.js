@@ -6,12 +6,10 @@ export async function getReports() {
     headers: { Authorization: `Bearer ${token}` },
   })
   const result = await res.json()
-  console.log('Response from getReports:', result)
   return result.data
 }
 
 export async function createReport(data) {
-  console.log('Creating report with data in service:', data)
   const token = localStorage.getItem('token') || ''
   const res = await fetch(API, {
     method: 'POST',
@@ -22,7 +20,6 @@ export async function createReport(data) {
 }
 
 export async function updateReport(input) {
-  console.log('Updating report with data in service:', input)
   const token = localStorage.getItem('token') || ''
   const res = await fetch(API, {
     method: 'PUT',
